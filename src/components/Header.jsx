@@ -26,7 +26,6 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // FIX: Prevent background scrolling when menu is open
   useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -39,100 +38,104 @@ export default function Header() {
     setIsMenuOpen(false);
   }, [pathname]);
 
+  // BG matches Hero exactly when not scrolled
   const headerBg = isScrolled
     ? "bg-white/95 backdrop-blur-lg shadow-md border-b border-gray-200/50 py-3"
-    : "bg-[#0a1622] border-b border-white/5 py-5";
-
-  const textColor = isScrolled ? "text-[#1e3a8a]" : "text-white";
-  const navInactiveColor = isScrolled ? "text-gray-700" : "text-gray-400";
+    : "bg-[#0a1622] py-6"; // Removed border-b to blend with Hero as seen in image
 
   return (
     <header
       className={`fixed top-0 w-full z-[100] transition-all duration-500 ease-in-out ${headerBg} px-6 md:px-16 flex justify-between items-center`}
     >
-      <Link to="/" className="flex items-center gap-2 z-[101]">
+      {/* Logo Section - Aligned as per image */}
+      <Link to="/" className="flex items-center gap-3 z-[101]">
         <img
           src={logo}
           alt="Kaffa Logo"
-          className="w-20 md:w-24 h-10 md:h-12 object-contain"
+          className="w-8 md:w-10 h-8 md:h-10 object-contain"
         />
-        <div className="flex flex-col leading-[1.0] -mt-1">
+        <div className="flex flex-col leading-tight">
           <span
-            className={`font-bold tracking-[0.35em] text-[15px] md:text-[18px] uppercase transition-colors ${textColor}`}
+            className={`font-bold tracking-[0.2em] text-[14px] md:text-[16px] uppercase ${isScrolled ? "text-[#0a1622]" : "text-white"}`}
           >
             Kaffa
           </span>
-          <span
-            className={`text-[10px] md:text-[12px] tracking-[0.22em] uppercase transition-colors ${isScrolled ? "text-gray-500" : "text-gray-400"}`}
-          >
+          <span className="text-[8px] md:text-[9px] tracking-[0.15em] uppercase text-gray-400">
             Investment Holdings
           </span>
         </div>
       </Link>
 
-      <div className="hidden lg:flex gap-10 items-center">
-        {navLinks.map((link) => (
-          <Link
-            key={link.path}
-            to={link.path}
-            className={`text-[12px] font-bold uppercase tracking-[0.25em] transition-all hover:text-[#c5a35d] ${
-              pathname === link.path ? textColor : navInactiveColor
-            }`}
-          >
-            {link.name}
-          </Link>
-        ))}
+      {/* Desktop Navigation - Compact & Centered */}
+      <div className="hidden lg:flex items-center bg-transparent gap-2">
+        {navLinks.map((link) => {
+          const isActive = pathname === link.path;
+          return (
+            <Link
+              key={link.path}
+              to={link.path}
+              className={`px-4 py-2 text-[13px] font-medium transition-all duration-300 rounded-md ${
+                isActive
+                  ? "bg-[#e9ecef] text-[#0a1622] shadow-sm" // Active pill style
+                  : isScrolled
+                    ? "text-gray-600 hover:text-[#0a1622]"
+                    : "text-gray-300 hover:text-white"
+              }`}
+            >
+              {link.name}
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Action Button */}
+      <div className="hidden lg:block">
         <Link
           to="/contact"
-          className={`border-2 px-7 py-2 text-[11px] uppercase tracking-[0.25em] font-bold transition-all ${
+          className={`px-6 py-2.5 text-[13px] font-bold rounded-md transition-all duration-300 ${
             isScrolled
-              ? "border-[#1e3a8a] text-[#1e3a8a] hover:bg-[#1e3a8a] hover:text-white"
-              : "border-[#c5a35d] text-white hover:bg-[#c5a35d] hover:text-[#0a1622]"
+              ? "bg-[#0a1622] text-white hover:bg-[#162a3d]"
+              : "bg-[#111d2a] text-white hover:bg-white hover:text-[#0a1622] border border-white/10"
           }`}
         >
-          Get In Touch
+          Get in Touch
         </Link>
       </div>
 
+      {/* Mobile Toggle */}
       <button
         className="lg:hidden z-[101] p-2"
         onClick={() => setIsMenuOpen(!isMenuOpen)}
       >
-        {isMenuOpen ? (
-          <X size={28} className="text-white" /> // Force white when menu open for visibility
-        ) : (
-          <Menu
-            size={28}
-            className={isScrolled ? "text-[#1e3a8a]" : "text-white"}
-          />
-        )}
+        <Menu
+          size={28}
+          className={isScrolled ? "text-[#0a1622]" : "text-white"}
+        />
       </button>
 
-      {/* --- REFINED MOBILE DRAWER --- */}
+      {/* Mobile Drawer */}
       <div
         className={`fixed inset-0 h-screen w-full bg-[#0a1622] transition-transform duration-500 ease-in-out transform 
         ${isMenuOpen ? "translate-x-0" : "translate-x-full"} 
         lg:hidden flex flex-col items-center justify-center gap-8 z-[100]`}
       >
+        <button
+          className="absolute top-8 right-8 text-white"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          <X size={32} />
+        </button>
         {navLinks.map((link) => (
           <Link
             key={link.path}
             to={link.path}
-            className={`text-[20px] font-bold uppercase tracking-[0.3em] transition-colors ${
-              pathname === link.path
-                ? "text-[#c5a35d]"
-                : "text-white hover:text-[#c5a35d]"
+            className={`text-[24px] font-serif transition-colors ${
+              pathname === link.path ? "text-[#c5a35d]" : "text-white"
             }`}
           >
             {link.name}
           </Link>
         ))}
-        <Link
-          to="/contact"
-          className="mt-6 border-2 border-[#c5a35d] text-[#c5a35d] px-12 py-4 text-[14px] uppercase tracking-[0.3em] font-bold hover:bg-[#c5a35d] hover:text-white transition-all"
-        >
-          Get In Touch
-        </Link>
       </div>
     </header>
   );

@@ -25,7 +25,7 @@ const offices = [
 
 export default function OfficeLocations() {
   return (
-    <section className="bg-[#f8f9fa] py-28 px-8 md:px-16">
+    <section className="bg-[#e9ecef] py-28 px-8 md:px-16">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-20">
           <span className="text-[#c5a35d] uppercase tracking-[0.4em] text-[11px] font-bold mb-4 block">

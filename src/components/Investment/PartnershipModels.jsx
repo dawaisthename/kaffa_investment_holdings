@@ -15,7 +15,7 @@ const models = [
 
 export default function PartnershipModels() {
   return (
-    <section className="bg-[#f8f9fa]  py-28 px-8 md:px-16">
+    <section className="bg-[#e9ecef]  py-28 px-8 md:px-16">
       <div className="max-w-7xl mx-auto">
         {/* Centered Header Section */}
         <div className="text-center mb-20">

@@ -28,7 +28,7 @@ const companies = [
 
 export default function FeaturedCompanies() {
   return (
-    <section className="bg-[#fcfcfc] py-24 px-8 md:px-16">
+    <section className="bg-[#e9ecef] py-24 px-8 md:px-16">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
