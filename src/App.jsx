@@ -9,11 +9,13 @@ import News from "./pages/News";
 import Careers from "./pages/Careers";
 import Contact from "./pages/Contact";
 import NewsDetail from "./components/News/NewsDetail";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-kaffa-dark flex flex-col">
+        <ScrollToTop />
         <Header />
         <main className="flex-grow">
           <Routes>
