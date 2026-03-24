@@ -38,8 +38,15 @@ const jobs = [
     type: "Full-time",
   },
 ];
-
 export default function OpenPositions() {
+  // Helper function for smooth scrolling
+  const scrollToForm = () => {
+    const formElement = document.getElementById("apply-form");
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <section className="bg-[#e9ecef] py-28 px-8 md:px-16">
       <div className="max-w-4xl mx-auto">
@@ -63,6 +70,7 @@ export default function OpenPositions() {
             <div
               key={i}
               className="bg-white p-6 rounded-lg border border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-[#c5a35d]/40 transition-all group cursor-pointer shadow-sm"
+              onClick={scrollToForm} // Optional: makes the whole card clickable
             >
               {/* Job Info */}
               <div className="flex flex-col gap-2 w-full md:w-auto">
@@ -85,8 +93,14 @@ export default function OpenPositions() {
                 </div>
               </div>
 
-              {/* Action Button */}
-              <button className="bg-[#fcfcfc] border border-gray-100 text-[#0a1622] px-6 py-2.5 rounded font-bold text-[12px] uppercase tracking-widest flex items-center gap-2 group-hover:bg-[#0a1622] group-hover:text-white transition-all whitespace-nowrap">
+              {/* Updated Action Button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevents double-triggering if card is clicked
+                  scrollToForm();
+                }}
+                className="bg-[#fcfcfc] border border-gray-100 text-[#0a1622] px-6 py-2.5 rounded font-bold text-[12px] uppercase tracking-widest flex items-center gap-2 group-hover:bg-[#0a1622] group-hover:text-white transition-all whitespace-nowrap"
+              >
                 Apply <ArrowRight size={14} />
               </button>
             </div>

@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function PartnerCTA() {
   return (
     <section className="bg-[#0a1622] py-28 px-8 md:px-16 text-center border-t border-white/5">
@@ -13,15 +15,21 @@ export default function PartnerCTA() {
           welcome the opportunity to explore how we can create value together.
         </p>
         <div className="flex flex-col md:flex-row gap-6 justify-center">
-          {/* Contact Button */}
-          <button className="bg-[#c5a35d] hover:bg-[#b08f4a] text-[#0a1622] px-12 py-5 rounded-md text-[12px] font-bold uppercase tracking-[0.2em] transition-all">
+          {/* Linked Contact Button */}
+          <Link
+            to="/contact"
+            className="bg-[#c5a35d] hover:bg-[#b08f4a] text-[#0a1622] px-12 py-5 rounded-md text-[12px] font-bold uppercase tracking-[0.2em] transition-all text-center"
+          >
             Contact Us
-          </button>
+          </Link>
 
-          {/* Secondary Button */}
-          <button className="text-white border border-white/30 rounded-md hover:border-[#c5a35d] px-8 py-5 text-[12px] font-bold uppercase tracking-[0.2em] transition-all">
+          {/* Linked Investment Criteria Button */}
+          <Link
+            to="/investment"
+            className="text-white border border-white/30 rounded-md hover:border-[#c5a35d] px-8 py-5 text-[12px] font-bold uppercase tracking-[0.2em] transition-all text-center"
+          >
             Investment Criteria
-          </button>
+          </Link>
         </div>
       </div>
     </section>

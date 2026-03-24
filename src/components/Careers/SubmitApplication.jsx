@@ -1,6 +1,6 @@
 export default function SubmitApplication() {
   return (
-    <section className="bg-[#f8f9fa] py-28 px-8 md:px-16">
+    <section id="apply-form" className="bg-[#f8f9fa] py-28 px-8 md:px-16">
       <div className="max-w-3xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-16">

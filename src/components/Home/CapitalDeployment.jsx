@@ -1,4 +1,5 @@
 import { Users, Globe, BarChart2, MapPin } from "lucide-react";
+import { Link } from "react-router-dom"; // Import Link for navigation
 
 const principles = [
   "Disciplined risk management and thorough due diligence on every opportunity.",
@@ -31,7 +32,6 @@ export default function CapitalDeployment() {
           <div className="space-y-8">
             {principles.map((text, i) => (
               <div key={i} className="flex gap-6 items-start group">
-                {/* Number with soft gold background circle */}
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#fdf8ed] flex items-center justify-center">
                   <span className="text-[#c5a35d] font-bold text-[13px]">
                     {i + 1}
@@ -45,7 +45,7 @@ export default function CapitalDeployment() {
           </div>
         </div>
 
-        {/* Right Side: Dark Callout Card with Rounded Corners */}
+        {/* Right Side: Dark Callout Card */}
         <div className="bg-[#0a1622] p-10 md:p-14 rounded-2xl relative shadow-2xl overflow-hidden">
           <span className="text-[#c5a35d] uppercase tracking-[0.3em] text-[11px] font-bold mb-8 block">
             Our Focus
@@ -59,7 +59,7 @@ export default function CapitalDeployment() {
             and the potential for long-term value creation.
           </p>
 
-          {/* Focus Grid with specific Icons from Image */}
+          {/* Focus Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8 mb-14">
             {focusAreas.map((item, idx) => (
               <div key={idx} className="flex items-center gap-4 text-white/90">
@@ -71,12 +71,16 @@ export default function CapitalDeployment() {
             ))}
           </div>
 
-          <button className="group/btn bg-[#c5a35d] hover:bg-[#b08f4a] text-[#0a1622] px-10 py-4 rounded-lg text-[12px] font-bold uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-[#c5a35d]/20">
+          {/* LINKED BUTTON: Changed from <button> to <Link> */}
+          <Link
+            to="/investment"
+            className="group/btn inline-flex bg-[#c5a35d] hover:bg-[#b08f4a] text-[#0a1622] px-10 py-4 rounded-lg text-[12px] font-bold uppercase tracking-[0.2em] transition-all duration-300 items-center gap-3 shadow-lg hover:shadow-[#c5a35d]/20"
+          >
             <span>Partnership Opportunities</span>
             <span className="text-lg transition-transform duration-300 group-hover/btn:translate-x-1.5">
               →
             </span>
-          </button>
+          </Link>
         </div>
       </div>
     </section>
