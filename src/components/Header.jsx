@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react"; // Icons for mobile toggle
-import logo from "../assets/Logo/kaffa_logo.png"; // Assuming you have a logo image in this path
+import { Menu, X } from "lucide-react";
+import logo from "../assets/Logo/kaffa_logo.png";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -15,7 +15,7 @@ const navLinks = [
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // Mobile menu state
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -26,7 +26,15 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close menu when route changes
+  // FIX: Prevent background scrolling when menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [isMenuOpen]);
+
   useEffect(() => {
     setIsMenuOpen(false);
   }, [pathname]);
@@ -42,7 +50,6 @@ export default function Header() {
     <header
       className={`fixed top-0 w-full z-[100] transition-all duration-500 ease-in-out ${headerBg} px-6 md:px-16 flex justify-between items-center`}
     >
-      {/* Brand Section */}
       <Link to="/" className="flex items-center gap-2 z-[101]">
         <img
           src={logo}
@@ -63,7 +70,6 @@ export default function Header() {
         </div>
       </Link>
 
-      {/* Desktop Navigation */}
       <div className="hidden lg:flex gap-10 items-center">
         {navLinks.map((link) => (
           <Link
@@ -88,16 +94,12 @@ export default function Header() {
         </Link>
       </div>
 
-      {/* Mobile Menu Toggle Button */}
       <button
         className="lg:hidden z-[101] p-2"
         onClick={() => setIsMenuOpen(!isMenuOpen)}
       >
         {isMenuOpen ? (
-          <X
-            size={28}
-            className={isScrolled ? "text-[#1e3a8a]" : "text-white"}
-          />
+          <X size={28} className="text-white" /> // Force white when menu open for visibility
         ) : (
           <Menu
             size={28}
@@ -106,16 +108,20 @@ export default function Header() {
         )}
       </button>
 
-      {/* Mobile Drawer Overlay */}
+      {/* --- REFINED MOBILE DRAWER --- */}
       <div
-        className={`fixed inset-0 bg-[#0a1622] transition-transform duration-500 ease-in-out transform ${isMenuOpen ? "translate-x-0" : "translate-x-full"} lg:hidden flex flex-col items-center justify-center gap-8`}
+        className={`fixed inset-0 h-screen w-full bg-[#0a1622] transition-transform duration-500 ease-in-out transform 
+        ${isMenuOpen ? "translate-x-0" : "translate-x-full"} 
+        lg:hidden flex flex-col items-center justify-center gap-8 z-[100]`}
       >
         {navLinks.map((link) => (
           <Link
             key={link.path}
             to={link.path}
-            className={`text-[18px] font-bold uppercase tracking-[0.3em] ${
-              pathname === link.path ? "text-[#c5a35d]" : "text-white"
+            className={`text-[20px] font-bold uppercase tracking-[0.3em] transition-colors ${
+              pathname === link.path
+                ? "text-[#c5a35d]"
+                : "text-white hover:text-[#c5a35d]"
             }`}
           >
             {link.name}
@@ -123,7 +129,7 @@ export default function Header() {
         ))}
         <Link
           to="/contact"
-          className="mt-4 border-2 border-[#c5a35d] text-[#c5a35d] px-10 py-4 text-[14px] uppercase tracking-[0.3em] font-bold"
+          className="mt-6 border-2 border-[#c5a35d] text-[#c5a35d] px-12 py-4 text-[14px] uppercase tracking-[0.3em] font-bold hover:bg-[#c5a35d] hover:text-white transition-all"
         >
           Get In Touch
         </Link>
