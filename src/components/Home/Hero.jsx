@@ -1,6 +1,8 @@
+import { Link } from "react-router-dom";
+
 export default function Hero() {
   return (
-    <section className="relative bg-kaffa-dark text-white pt-52 pb-32 px-8 md:px-16 lg:px-24 overflow-hidden">
+    <section className="relative bg-[#0a1622] text-white pt-52 pb-32 px-8 md:px-16 lg:px-24 overflow-hidden">
       {/* Background Gradient to mimic the subtle lighting in the screenshot */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
 
@@ -20,8 +22,11 @@ export default function Hero() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            {/* Primary Button: Rounded-sm with Arrow Icon */}
-            <button className="w-full sm:w-auto bg-kaffa-gold text-black font-semibold px-8 py-4 rounded-md hover:bg-white transition-all duration-300 flex items-center justify-center gap-3 text-sm tracking-wide">
+            {/* Primary Button: Linked to Portfolio */}
+            <Link
+              to="/portfolio"
+              className="w-full sm:w-auto bg-[#c5a35d] text-black font-semibold px-8 py-4 rounded-md hover:bg-white transition-all duration-300 flex items-center justify-center gap-3 text-sm tracking-wide"
+            >
               Explore Our Portfolio
               <svg
                 width="18"
@@ -35,12 +40,15 @@ export default function Hero() {
               >
                 <path d="M5 12h14m-7-7 7 7-7 7" />
               </svg>
-            </button>
+            </Link>
 
-            {/* Secondary Button: Outlined style from the image */}
-            <button className="text-white border border-white/30 rounded-md hover:border-[#c5a35d] px-8 py-5 text-[12px] font-bold uppercase tracking-[0.2em] transition-all">
-              Contat us
-            </button>
+            {/* Secondary Button: Linked to Contact */}
+            <Link
+              to="/contact"
+              className="w-full sm:w-auto text-center text-white border border-white/30 rounded-md hover:border-[#c5a35d] px-8 py-5 text-[12px] font-bold uppercase tracking-[0.2em] transition-all"
+            >
+              Contact Us
+            </Link>
           </div>
         </div>
       </div>
