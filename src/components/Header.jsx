@@ -38,16 +38,15 @@ export default function Header() {
     setIsMenuOpen(false);
   }, [pathname]);
 
-  // BG matches Hero exactly when not scrolled
   const headerBg = isScrolled
     ? "bg-white/95 backdrop-blur-lg shadow-md border-b border-gray-200/50 py-3"
-    : "bg-[#0a1622] py-6"; // Removed border-b to blend with Hero as seen in image
+    : "bg-[#0a1622] py-6";
 
   return (
     <header
       className={`fixed top-0 w-full z-[100] transition-all duration-500 ease-in-out ${headerBg} px-6 md:px-16 flex justify-between items-center`}
     >
-      {/* Logo Section - Aligned as per image */}
+      {/* Logo Section */}
       <Link to="/" className="flex items-center gap-3 z-[101]">
         <img
           src={logo}
@@ -56,7 +55,9 @@ export default function Header() {
         />
         <div className="flex flex-col leading-tight">
           <span
-            className={`font-bold tracking-[0.2em] text-[14px] md:text-[16px] uppercase ${isScrolled ? "text-[#0a1622]" : "text-white"}`}
+            className={`font-bold tracking-[0.2em] text-[14px] md:text-[16px] uppercase ${
+              isScrolled && !isMenuOpen ? "text-[#0a1622]" : "text-white"
+            }`}
           >
             Kaffa
           </span>
@@ -66,7 +67,7 @@ export default function Header() {
         </div>
       </Link>
 
-      {/* Desktop Navigation - Compact & Centered */}
+      {/* Desktop Navigation */}
       <div className="hidden lg:flex items-center bg-transparent gap-2">
         {navLinks.map((link) => {
           const isActive = pathname === link.path;
@@ -76,7 +77,7 @@ export default function Header() {
               to={link.path}
               className={`px-4 py-2 text-[13px] font-medium transition-all duration-300 rounded-md ${
                 isActive
-                  ? "bg-[#e9ecef] text-[#0a1622] shadow-sm" // Active pill style
+                  ? "bg-[#e9ecef] text-[#0a1622] shadow-sm"
                   : isScrolled
                     ? "text-gray-600 hover:text-[#0a1622]"
                     : "text-gray-300 hover:text-white"
@@ -102,15 +103,20 @@ export default function Header() {
         </Link>
       </div>
 
-      {/* Mobile Toggle */}
+      {/* Unified Mobile Toggle Button */}
       <button
-        className="lg:hidden z-[101] p-2"
+        className="lg:hidden z-[101] p-2 transition-transform duration-300 active:scale-90"
         onClick={() => setIsMenuOpen(!isMenuOpen)}
+        aria-label="Toggle Menu"
       >
-        <Menu
-          size={28}
-          className={isScrolled ? "text-[#0a1622]" : "text-white"}
-        />
+        {isMenuOpen ? (
+          <X size={28} className="text-white" />
+        ) : (
+          <Menu
+            size={28}
+            className={isScrolled ? "text-[#0a1622]" : "text-white"}
+          />
+        )}
       </button>
 
       {/* Mobile Drawer */}
@@ -119,12 +125,6 @@ export default function Header() {
         ${isMenuOpen ? "translate-x-0" : "translate-x-full"} 
         lg:hidden flex flex-col items-center justify-center gap-8 z-[100]`}
       >
-        <button
-          className="absolute top-8 right-8 text-white"
-          onClick={() => setIsMenuOpen(false)}
-        >
-          <X size={32} />
-        </button>
         {navLinks.map((link) => (
           <Link
             key={link.path}
