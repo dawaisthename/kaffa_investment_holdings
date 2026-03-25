@@ -35,7 +35,7 @@ export default function FeaturedCompanies() {
           <span className="text-[#c5a35d] uppercase tracking-[0.4em] text-[11px] font-bold mb-4 block">
             Portfolio
           </span>
-          <h2 className="text-4xl md:text-5xl font-serif text-[#0a1622] font-bold mb-6">
+          <h2 className="text-4xl md:text-[40px] font-serif text-[#0a1622] font-bold mb-2">
             Featured companies
           </h2>
           <p className="text-gray-500 text-lg max-w-2xl mx-auto font-medium">

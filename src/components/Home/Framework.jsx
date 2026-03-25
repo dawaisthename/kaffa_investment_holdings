@@ -27,7 +27,7 @@ export default function Framework() {
           <span className="text-[#c5a35d] uppercase tracking-[0.4em] text-[11px] font-bold mb-4 block">
             Our Approach
           </span>
-          <h2 className="text-4xl md:text-[54px] font-serif text-[#0a1622] leading-tight mb-6 font-bold">
+          <h2 className="text-4xl md:text-[40px] font-serif text-[#0a1622] leading-tight mb-2 font-bold">
             A disciplined framework for value creation
           </h2>
           <p className="text-gray-500 text-lg md:text-[20px] leading-relaxed max-w-3xl mx-auto font-medium">
@@ -48,7 +48,7 @@ export default function Framework() {
                 {pillar.icon}
               </div>
 
-              <h3 className="text-[22px] font-bold font-serif text-[#0a1622] mb-5">
+              <h3 className="text-[20px] font-semibold font-sans antialiased text-[#0a1622] mb-5">
                 {pillar.title}
               </h3>
 

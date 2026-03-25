@@ -25,8 +25,8 @@ export default function CapitalDeployment() {
           <span className="text-[#c5a35d] uppercase tracking-[0.3em] text-[11px] font-bold mb-6 block">
             Investment Thesis
           </span>
-          <h2 className="text-4xl md:text-[52px] font-serif text-[#0a1622] font-bold mb-12 leading-[1.1]">
-            How we think about <br /> deploying capital
+          <h2 className="text-4xl md:text-[40px] font-serif text-[#0a1622] font-bold mb-2 leading-[1.1]">
+            How we think about deploying capital
           </h2>
 
           <div className="space-y-8">
@@ -50,10 +50,10 @@ export default function CapitalDeployment() {
           <span className="text-[#c5a35d] uppercase tracking-[0.3em] text-[11px] font-bold mb-8 block">
             Our Focus
           </span>
-          <h3 className="text-white font-serif text-xl md:text-[42px] mb-8 leading-[1.2] font-bold">
+          <h3 className="text-white font-serif text-4xl md:text-[40px] mb-3  font-bold">
             We invest where conviction meets opportunity
           </h3>
-          <p className="text-gray-400 text-md mb-12 leading-relaxed">
+          <p className="text-gray-400 font-medium text-lg mb-12 leading-relaxed">
             Our portfolio spans six core sectors across three operating regions.
             We look for businesses with strong fundamentals, capable management,
             and the potential for long-term value creation.

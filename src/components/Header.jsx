@@ -75,7 +75,7 @@ export default function Header() {
             <Link
               key={link.path}
               to={link.path}
-              className={`px-4 py-2 text-[13px] font-medium transition-all duration-300 rounded-md ${
+              className={`px-4 py-2 text-[14px] font-medium transition-all duration-300 rounded-md ${
                 isActive
                   ? "bg-[#e9ecef] text-[#0a1622] shadow-sm"
                   : isScrolled

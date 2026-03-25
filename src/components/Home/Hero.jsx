@@ -9,23 +9,26 @@ export default function Hero() {
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="max-w-4xl">
           {/* Main Heading - using font-serif (Playfair) and tracking-tight */}
-          <h1 className="text-white text-5xl md:text-7xl font-serif leading-[1.1] mb-8 tracking-tight font-medium">
+          <h1 className="text-white text-5xl md:text-7xl font-serif leading-[1.1] mb-8 tracking-tight font-bold">
             Building enduring <br />
             value across sectors
           </h1>
 
           {/* Subtext - adjusted gray and spacing */}
-          <p className="text-gray-400 text-lg md:text-xl leading-relaxed mb-12 max-w-2xl font-light">
+          <p className="text-gray-400 text-lg md:text-lg leading-relaxed mb-12 max-w-2xl font-medium">
             Kaffa Holding is a diversified investment group deploying long-term
             capital across real estate, technology, logistics, agriculture,
             financial services, and energy.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            {/* Primary Button: Linked to Portfolio */}
+            {/* Primary Button */}
             <Link
               to="/portfolio"
-              className="w-full sm:w-auto bg-[#c5a35d] text-black font-semibold px-8 py-4 rounded-md hover:bg-white transition-all duration-300 flex items-center justify-center gap-3 text-sm tracking-wide"
+              className="w-full sm:w-auto bg-[#c5a35d] text-black px-8 py-2.5 rounded-md 
+               text-sm font-medium tracking-wide 
+               flex items-center justify-center gap-3 
+               hover:bg-white transition-all duration-300"
             >
               Explore Our Portfolio
               <svg
@@ -42,10 +45,13 @@ export default function Hero() {
               </svg>
             </Link>
 
-            {/* Secondary Button: Linked to Contact */}
+            {/* Secondary Button */}
             <Link
               to="/contact"
-              className="w-full sm:w-auto text-center text-white border border-white/30 rounded-md hover:border-[#c5a35d] px-8 py-5 text-[12px] font-bold uppercase tracking-[0.2em] transition-all"
+              className="w-full sm:w-auto text-white border border-white/30 px-8 py-2.5 rounded-md 
+               text-sm font-medium tracking-wide 
+               flex items-center justify-center
+               hover:border-[#c5a35d] transition-all duration-300"
             >
               Contact Us
             </Link>

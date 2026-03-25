@@ -31,7 +31,7 @@ export default function NewsInsights() {
           <span className="text-[#c5a35d] uppercase tracking-[0.4em] text-[11px] font-bold mb-4 block">
             Latest Updates
           </span>
-          <h2 className="text-4xl md:text-5xl font-serif text-[#0a1622] font-bold">
+          <h2 className="text-4xl md:text-[40px] font-serif text-[#0a1622] font-bold">
             News & insights
           </h2>
         </div>
@@ -42,13 +42,13 @@ export default function NewsInsights() {
             <Link
               key={i}
               to={article.path}
-              className="group bg-white p-10 border border-gray-100 flex flex-col justify-between h-[320px] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
+              className="group bg-white p-10 border border-gray-100 flex flex-col justify-between h-[200px] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
             >
               <div>
-                <span className="text-[10px] uppercase tracking-[0.2em] text-[#c5a35d] font-bold mb-6 block">
+                <span className="inline-block text-[10px] bg-[#f5f5f5] uppercase tracking-[0.15em] text-[#0a1622] font-semibold mb-6 px-3 py-1 rounded-full">
                   {article.category}
                 </span>
-                <h3 className="text-xl md:text-2xl font-serif text-[#0a1622] leading-tight font-bold group-hover:text-[#c5a35d] transition-colors duration-300">
+                <h3 className="text-lg md:text-lg font-sans antialiased text-[#0a1622] leading-tight font-semibold group-hover:text-[#c5a35d] transition-colors duration-300">
                   {article.title}
                 </h3>
               </div>

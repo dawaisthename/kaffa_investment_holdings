@@ -2,7 +2,7 @@ import { Clock, BarChart3, Globe, TrendingUp } from "lucide-react";
 
 const stats = [
   {
-    label: "Years of Operations", // Updated to match image text
+    label: "Years of Operations",
     value: "10+",
     icon: <Clock size={20} strokeWidth={1.5} />,
   },
@@ -12,7 +12,7 @@ const stats = [
     icon: <BarChart3 size={20} strokeWidth={1.5} />,
   },
   {
-    label: "Operating Regions", // Updated to match image text
+    label: "Operating Regions",
     value: "3",
     icon: <Globe size={20} strokeWidth={1.5} />,
   },
@@ -25,25 +25,24 @@ const stats = [
 
 export default function StatsBar() {
   return (
-    <section className="bg-white py-20 border-b border-gray-100">
+    <section className="bg-white border-b-2 border-gray-200">
       <div className="max-w-7xl mx-auto px-8 md:px-16">
-        {/* Added divide-x to create the subtle vertical lines seen in the image */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-12 divide-gray-100 lg:divide-x">
+        <div className="grid grid-cols-2 lg:grid-cols-4 divide-x-2 divide-gray-200">
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="flex flex-col items-center text-center px-4"
+              className="flex flex-col items-center text-center px-4 py-8"
             >
-              {/* Icon - Gold color with margin for vertical spacing */}
+              {/* Icon */}
               <div className="text-[#c5a35d] mb-6">{stat.icon}</div>
 
-              {/* Value - Serif font, bold, dark navy */}
-              <span className="text-4xl md:text-5xl font-serif text-[#0a1622] font-bold mb-3 tracking-tight">
+              {/* Value */}
+              <span className="text-4xl font-serif text-[#0a1622] font-bold mb-3 tracking-tight">
                 {stat.value}
               </span>
 
-              {/* Label - Bold, uppercase, wide tracking */}
-              <span className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-gray-500 font-extrabold">
+              {/* Label */}
+              <span className="text-[11px] uppercase tracking-[0.2em] text-gray-500 font-semibold">
                 {stat.label}
               </span>
             </div>

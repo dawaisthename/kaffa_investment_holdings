@@ -7,26 +7,35 @@ export default function PartnerCTA() {
         <span className="text-[#c5a35d] uppercase tracking-[0.5em] text-[12px] font-bold mb-8 block">
           Get In Touch
         </span>
-        <h2 className="text-4xl md:text-6xl font-serif text-white font-bold mb-10 leading-tight">
+        <h2 className="text-4xl md:text-[40px] font-serif text-white font-bold mb-8 leading-tight">
           Interested in partnering with us?
         </h2>
-        <p className="text-gray-400 text-lg md:text-xl mb-12 leading-relaxed max-w-2xl mx-auto font-medium">
+        <p className="text-gray-400 text-lg md:text-xl mb-10 leading-relaxed max-w-2xl mx-auto font-medium">
           Whether you are an investor, entrepreneur, or prospective partner, we
           welcome the opportunity to explore how we can create value together.
         </p>
         <div className="flex flex-col md:flex-row gap-6 justify-center">
-          {/* Linked Contact Button */}
+          {/* Contact Button */}
           <Link
             to="/contact"
-            className="bg-[#c5a35d] hover:bg-[#b08f4a] text-[#0a1622] px-12 py-5 rounded-md text-[12px] font-bold uppercase tracking-[0.2em] transition-all text-center"
+            className="w-full md:w-auto bg-[#c5a35d] hover:bg-[#b08f4a] text-[#0a1622] 
+               px-5 py-2.5 rounded-md 
+               text-[12px] font-semibold uppercase tracking-[0.2em] 
+               transition-all duration-300 text-center 
+               flex items-center justify-center"
           >
             Contact Us
           </Link>
 
-          {/* Linked Investment Criteria Button */}
+          {/* Investment Button */}
           <Link
             to="/investment"
-            className="text-white border border-white/30 rounded-md hover:border-[#c5a35d] px-8 py-5 text-[12px] font-bold uppercase tracking-[0.2em] transition-all text-center"
+            className="w-full md:w-auto text-white border border-white/30 rounded-md 
+               px-5 py-2.5
+               text-[12px] font-semibold uppercase tracking-[0.2em] 
+               transition-all duration-300 text-center 
+               flex items-center justify-center
+               hover:border-[#c5a35d]"
           >
             Investment Criteria
           </Link>
