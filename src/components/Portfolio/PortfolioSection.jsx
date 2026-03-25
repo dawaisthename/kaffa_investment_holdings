@@ -157,17 +157,18 @@ export default function PortfolioSection() {
                   {company.icon}
                 </div>
 
-                <h3 className="text-[22px] font-serif font-bold text-[#0a1622] mb-4">
+                <h3 className="text-lg font-semibold text-[#0a1622] mb-4">
                   {company.name}
                 </h3>
-                <p className="text-gray-500 text-[15px] leading-relaxed mb-10">
+                <p className="text-gray-500 text-[15px] leading-relaxed ">
                   {company.desc}
                 </p>
               </div>
+              {/* className="inline-block text-[10px] bg-[#f5f5f5] uppercase tracking-[0.15em] text-[#0a1622] font-semibold mb-6 px-3 py-1 rounded-full"> */}
 
               {/* Card Footer Tags */}
               <div className="flex items-center gap-4 border-t border-gray-50 pt-6">
-                <span className="bg-[#f8f9fa] text-[#4b5563] text-[11px] font-bold px-3 py-1 rounded">
+                <span className="bg-[#f5f5f5] sans-serif text-[#6D6C6E] text-[11px] font-semibold px-3 py-1 rounded">
                   {company.sector}
                 </span>
                 <div className="flex items-center gap-1.5 text-gray-400 text-[11px] font-bold">
