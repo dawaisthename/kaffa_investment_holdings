@@ -30,7 +30,7 @@ export default function SubmitApplication() {
               id="fullName"
               name="fullName"
               placeholder="Your full name"
-              className="bg-[#fcfcfc] border border-gray-300 shadow-sm p-4 text-[14px] text-black rounded outline-none focus:border-[#c5a35d] transition-colors placeholder:text-gray-400"
+              className="bg-[#fcfcfc] border border-gray-300 shadow-sm p-2 text-[14px] text-black rounded outline-none focus:border-[#c5a35d] transition-colors placeholder:text-gray-400"
             />
           </div>
 
@@ -46,7 +46,7 @@ export default function SubmitApplication() {
               id="email"
               name="email"
               placeholder="you@email.com"
-              className="bg-[#fcfcfc] border border-gray-300 shadow-sm p-4 text-[14px] text-black rounded outline-none focus:border-[#c5a35d] transition-colors placeholder:text-gray-400"
+              className="bg-[#fcfcfc] border border-gray-300 shadow-sm p-2 text-[14px] text-black rounded outline-none focus:border-[#c5a35d] transition-colors placeholder:text-gray-400"
             />
           </div>
 
@@ -62,7 +62,7 @@ export default function SubmitApplication() {
               id="position"
               name="position"
               placeholder="e.g., Investment Analyst"
-              className="bg-[#fcfcfc] border border-gray-300 shadow-sm p-4 text-[14px] text-black rounded outline-none focus:border-[#c5a35d] transition-colors placeholder:text-gray-400"
+              className="bg-[#fcfcfc] border border-gray-300 shadow-sm p-2 text-[14px] text-black rounded outline-none focus:border-[#c5a35d] transition-colors placeholder:text-gray-400"
             />
           </div>
 
@@ -79,7 +79,7 @@ export default function SubmitApplication() {
               name="message"
               rows="5"
               placeholder="Tell us why you'd be a good fit..."
-              className="bg-[#fcfcfc] border border-gray-300 shadow-sm p-4 text-[14px] text-black rounded outline-none focus:border-[#c5a35d] transition-colors placeholder:text-gray-400 resize-none"
+              className="bg-[#fcfcfc] border border-gray-300 shadow-sm p-2 text-[14px] text-black rounded outline-none focus:border-[#c5a35d] transition-colors placeholder:text-gray-400 resize-none"
             />
           </div>
 

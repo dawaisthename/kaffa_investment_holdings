@@ -20,7 +20,7 @@ const pillars = [
 
 export default function Framework() {
   return (
-    <section className="bg-white py-24 px-8 md:px-16">
+    <section className="bg-[#FAFAFA] py-24 px-8 md:px-16">
       <div className="max-w-7xl mx-auto">
         {/* Header Section - Matches proportions in Framework.png */}
         <div className="text-center mb-16 max-w-4xl mx-auto">
@@ -41,7 +41,7 @@ export default function Framework() {
           {pillars.map((pillar, i) => (
             <div
               key={i}
-              className="bg-white p-10 rounded-xl border border-gray-100/80 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col items-start text-left"
+              className="bg-white p-8 rounded-md border border-gray-200 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col items-start text-left"
             >
               {/* Icon Box - Subtle gray square from image */}
               <div className="mb-8 p-4 bg-[#f4f4f4] rounded-lg flex items-center justify-center">

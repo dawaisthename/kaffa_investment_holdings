@@ -25,9 +25,9 @@ const stats = [
 
 export default function StatsBar() {
   return (
-    <section className="bg-white border-b-2 border-gray-200">
+    <section className="bg-white border-b  border-gray-200">
       <div className="max-w-7xl mx-auto px-8 md:px-16">
-        <div className="grid grid-cols-2 lg:grid-cols-4 divide-x-2 divide-gray-200">
+        <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-200">
           {stats.map((stat, index) => (
             <div
               key={index}

@@ -18,7 +18,7 @@ const focusAreas = [
 
 export default function CapitalDeployment() {
   return (
-    <section className="bg-white py-24 px-8 md:px-16">
+    <section className="bg-[#FAFAFA] py-24 px-8 md:px-16">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
         {/* Left Side: Investment Thesis List */}
         <div className="pt-4">
