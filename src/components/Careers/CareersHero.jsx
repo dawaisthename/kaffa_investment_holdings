@@ -3,7 +3,7 @@ export default function CareersHero() {
     <section className="bg-[#0a1622] pt-48 pb-32 px-8 md:px-16 text-left">
       <div className="max-w-7xl mx-auto">
         {/* Animated Slide-in Heading */}
-        <h1 className="text-white font-serif text-5xl md:text-7xl font-bold mb-8 tracking-tight leading-[1.1]">
+        <h1 className="text-white text-5xl md:text-6xl font-serif leading-[1.05] mb-5 tracking-tight font-bold">
           Careers
         </h1>
 

@@ -28,7 +28,7 @@ export default function CareersCulture() {
     <section className="bg-[#f8f9fa] py-28 px-8 md:px-16">
       <div className="max-w-7xl mx-auto">
         {/* Centered Header Section */}
-        <div className="text-center mb-20">
+        <div className="text-center mb-16">
           <span className="text-[#c5a35d] uppercase tracking-[0.4em] text-[11px] font-bold mb-5 block">
             Why Kaffa
           </span>
@@ -46,10 +46,10 @@ export default function CareersCulture() {
           {values.map((v, i) => (
             <div
               key={i}
-              className="bg-[#fcfcfc] p-8 border border-gray-100 rounded-xl text-center flex flex-col items-center transition-all duration-300 hover:shadow-md"
+              className="bg-[#FFFFFF] p-8 border border-gray-200 rounded-md text-center flex flex-col items-center transition-all duration-300 hover:shadow-md"
             >
               {/* Circular Icon with subtle shadow */}
-              <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-[#c5a35d] mb-6 border border-gray-50">
+              <div className="w-12 h-12 rounded-full bg-[#fcfcfc] shadow-sm flex items-center justify-center text-[#c5a35d] mb-6 border border-gray-50">
                 {v.icon}
               </div>
 

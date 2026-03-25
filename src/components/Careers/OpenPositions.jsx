@@ -74,7 +74,7 @@ export default function OpenPositions() {
             >
               {/* Job Info */}
               <div className="flex flex-col gap-2 w-full md:w-auto">
-                <h3 className="text-[19px] font-bold text-[#0a1622] group-hover:text-[#c5a35d] transition-colors">
+                <h3 className="text-[16px] font-semibold text-[#0a1622] group-hover:text-[#c5a35d] transition-colors">
                   {job.title}
                 </h3>
 
