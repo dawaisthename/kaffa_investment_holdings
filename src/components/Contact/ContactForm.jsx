@@ -2,7 +2,7 @@ import { Mail, Phone, MapPin } from "lucide-react";
 
 export default function ContactForm() {
   return (
-    <section className="bg-white py-28 px-8 md:px-16">
+    <section className="bg-[#FAFAFA] py-28 px-8 md:px-16">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-16">
         {/* Left: Message Form */}
         <div className="lg:col-span-2">
@@ -19,40 +19,40 @@ export default function ContactForm() {
 
           <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
-              <label className="text-[11px] font-bold uppercase tracking-widest">
+              <label className="text-[#0a1622] text-[11px] font-bold uppercase tracking-widest">
                 Full Name *
               </label>
               <input
                 type="text"
                 placeholder="Your full name"
-                className="bg-[#fcfcfc] border border-gray-100 p-4 rounded outline-none focus:border-[#c5a35d] transition-all text-sm"
+                className="bg-[#fcfcfc] border border-gray-100 p-2 rounded outline-none focus:border-[#c5a35d] transition-all text-sm"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-[11px] font-bold uppercase tracking-widest">
+              <label className="text-[#0a1622]  text-[11px] font-bold uppercase tracking-widest">
                 Email *
               </label>
               <input
                 type="email"
                 placeholder="you@company.com"
-                className="bg-[#fcfcfc] border border-gray-100 p-4 rounded outline-none focus:border-[#c5a35d] transition-all text-sm"
+                className="bg-[#fcfcfc] border border-gray-100 p-2 rounded outline-none focus:border-[#c5a35d] transition-all text-sm"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-[11px] font-bold uppercase tracking-widest">
+              <label className="text-[#0a1622] text-[11px] font-bold uppercase tracking-widest">
                 Company
               </label>
               <input
                 type="text"
                 placeholder="Your company (optional)"
-                className="bg-[#fcfcfc] border border-gray-100 p-4 rounded outline-none focus:border-[#c5a35d] transition-all text-sm"
+                className="bg-[#fcfcfc] border border-gray-100 p-2 rounded outline-none focus:border-[#c5a35d] transition-all text-sm"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-[11px] font-bold uppercase tracking-widest">
+              <label className="text-[#0a1622]  text-[11px] font-bold uppercase tracking-widest">
                 Inquiry Type
               </label>
-              <select className="bg-[#fcfcfc] border border-gray-100 p-4 rounded outline-none focus:border-[#c5a35d] transition-all text-sm text-gray-500 appearance-none">
+              <select className="bg-[#fcfcfc] border border-gray-100 p-2 rounded outline-none focus:border-[#c5a35d] transition-all text-sm text-gray-500 appearance-none">
                 <option>Select type</option>
                 <option>Investment</option>
                 <option>Partnership</option>
@@ -60,13 +60,13 @@ export default function ContactForm() {
               </select>
             </div>
             <div className="md:col-span-2 flex flex-col gap-2">
-              <label className="text-[11px] font-bold uppercase tracking-widest">
+              <label className="text-[#0a1622] text-[11px] font-bold uppercase tracking-widest font-sans">
                 Message *
               </label>
               <textarea
                 rows="5"
                 placeholder="How can we help?"
-                className="bg-[#fcfcfc] border border-gray-100 p-4 rounded outline-none focus:border-[#c5a35d] transition-all text-sm resize-none"
+                className="bg-[#fcfcfc] border border-gray-100 p-2 rounded outline-none focus:border-[#c5a35d] transition-all text-sm resize-none"
               ></textarea>
             </div>
             <button className="md:col-span-2 bg-[#0a1622] text-white py-4 rounded font-bold text-[12px] uppercase tracking-[0.3em] hover:bg-[#162a3d] transition-all mt-4 flex items-center justify-center gap-2">
@@ -77,7 +77,7 @@ export default function ContactForm() {
 
         {/* Right: Sidebar Info */}
         <div className="flex flex-col gap-10">
-          <div>
+          <div className="bg-white py-8 px-7 border border-gray-200 rounded-md">
             <h4 className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#c5a35d] mb-6">
               General Inquiries
             </h4>
@@ -98,7 +98,7 @@ export default function ContactForm() {
             </div>
           </div>
 
-          <div>
+          <div className="bg-white py-8 px-7 border border-gray-200 rounded-md">
             <h4 className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#c5a35d] mb-6">
               Investment Inquiries
             </h4>
