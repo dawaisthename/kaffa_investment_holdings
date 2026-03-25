@@ -11,10 +11,10 @@ const focusAreas = [
 
 export default function FocusAreas() {
   return (
-    <section className="bg-white py-24 px-8 md:px-16">
+    <section className="bg-[#FAFAFA] py-24 px-8 md:px-16">
       <div className="max-w-7xl mx-auto">
         {/* Header Content */}
-        <div className="mb-16">
+        <div className="mb-10">
           <span className="text-[#c5a35d] uppercase tracking-[0.4em] text-[11px] font-bold mb-5 block">
             Focus Areas
           </span>
@@ -33,7 +33,7 @@ export default function FocusAreas() {
           {focusAreas.map((area, i) => (
             <div
               key={i}
-              className="bg-white p-6 border border-gray-100 flex items-center gap-5 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
+              className="bg-white p-8 border border-gray-300 flex items-center gap-5 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
             >
               {/* Dark Square Icon Box */}
               <div className="bg-[#0a1622] text-[#c5a35d] p-3 rounded flex items-center justify-center shrink-0">
@@ -45,7 +45,6 @@ export default function FocusAreas() {
             </div>
           ))}
         </div>
-
         {/* Geographic Region Tags */}
         <div className="flex flex-wrap gap-3 pt-6 border-t border-gray-200/50">
           {["East Africa", "Middle East", "Southeast Asia"].map((region) => (

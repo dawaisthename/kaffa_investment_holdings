@@ -18,7 +18,7 @@ export default function PartnershipModels() {
     <section className="bg-[#e9ecef]  py-28 px-8 md:px-16">
       <div className="max-w-7xl mx-auto">
         {/* Centered Header Section */}
-        <div className="text-center mb-20">
+        <div className="text-center mb-16">
           <span className="text-[#c5a35d] uppercase tracking-[0.4em] text-[11px] font-bold mb-5 block">
             Partnership Models
           </span>
@@ -36,12 +36,12 @@ export default function PartnershipModels() {
           {models.map((m, i) => (
             <div
               key={i}
-              className="bg-[#fcfcfc] p-10 md:p-14 rounded-xl border border-gray-100 flex flex-col transition-all duration-500 hover:shadow-lg"
+              className="bg-white md:p-8 rounded-lg border border-gray-300 flex flex-col transition-all duration-500 hover:shadow-lg"
             >
-              <h3 className="text-[22px] font-serif font-bold text-[#0a1622] mb-6 leading-snug">
+              <h3 className="text-[20px]  font-semibold text-[#0a1622] mb-3 leading-snug">
                 {m.title}
               </h3>
-              <p className="text-gray-500 leading-relaxed text-[15px] font-medium">
+              <p className="text-gray-500 leading-relaxed text-[16px] font-medium">
                 {m.desc}
               </p>
             </div>

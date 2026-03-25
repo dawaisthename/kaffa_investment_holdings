@@ -13,14 +13,14 @@ const criteria = [
 
 export default function InvestmentCriteria() {
   return (
-    <section className="bg-white py-24 px-8 md:px-16">
+    <section className="bg-[#FAFAFA] py-24 px-8 md:px-16">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
-        <div className="mb-14">
-          <span className="text-[#c5a35d] uppercase tracking-[0.25em] text-[11px] font-bold mb-5 block">
+        <div className="mb-12">
+          <span className="text-[#c5a35d] uppercase tracking-[0.25em] text-[11px] font-bold mb-3 block">
             Investment Criteria
           </span>
-          <h2 className="text-[44px] font-serif text-[#0a1622] font-bold mb-5 tracking-tight">
+          <h2 className="text-[44px] font-serif text-[#0a1622] font-bold mb-2 tracking-tight">
             What we look for
           </h2>
           <p className="text-gray-500 text-[17px] max-w-3xl leading-relaxed">
@@ -34,7 +34,7 @@ export default function InvestmentCriteria() {
           {criteria.map((item, i) => (
             <div
               key={i}
-              className="flex items-center gap-4 bg-white px-6 py-[18px] rounded-lg border border-gray-100 hover:border-gray-200 transition-colors shadow-[0_2px_4px_rgba(0,0,0,0.02)]"
+              className="flex items-center gap-4 bg-white px-6 py-[18px] rounded-lg border border-gray-250 hover:border-gray-200 transition-colors shadow-[0_2px_4px_rgba(0,0,0,0.02)]"
             >
               {/* Refined Gold Check Circle */}
               <div className="w-5 h-5 rounded-full border border-[#c5a35d] flex items-center justify-center shrink-0">

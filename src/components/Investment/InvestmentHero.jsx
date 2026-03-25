@@ -8,8 +8,8 @@ export default function InvestmentHero() {
         </span>
 
         {/* Main Heading - Matches the 72px scale of the About Page */}
-        <h1 className="text-white font-serif text-5xl md:text-7xl lg:text-[72px] font-bold mb-8 leading-[1.05] tracking-tight">
-          Investment & <br className="hidden md:block" /> Partnerships
+        <h1 className="text-white text-5xl md:text-6xl font-serif leading-[1.05] mb-5 tracking-tight font-bold">
+          Investment & Partnerships
         </h1>
 
         {/* Detail Paragraph - Set to a specific max-width for readability */}
