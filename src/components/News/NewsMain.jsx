@@ -72,14 +72,14 @@ export default function NewsMain() {
   return (
     <section className="bg-[#f8f9fa] min-h-screen">
       {/* --- FILTER & SEARCH BAR --- */}
-      <div className="bg-white py-10 px-8 md:px-16 border-b border-gray-100 sticky top-0 z-10">
+      <div className=" py-10 px-8 md:px-16 border-b border-gray-100 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-8">
           <div className="flex flex-wrap justify-center lg:justify-start gap-2">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`px-6 py-2 rounded text-[13px] font-bold transition-all duration-300 ${
+                className={`px-6 py-2 rounded text-[13px] font-semibold transition-all duration-300 ${
                   activeCategory === cat
                     ? "bg-[#0a1622] text-white"
                     : "bg-[#f4f4f4] text-gray-500 hover:bg-gray-200"
@@ -124,12 +124,12 @@ export default function NewsMain() {
                         {article.category}
                       </span>
                       <span className="text-gray-200 text-[12px]">|</span>
-                      <span className="text-gray-400 text-[12px] font-semibold">
+                      <span className="text-gray-400 text-[12px] font-medium">
                         {article.date}
                       </span>
                     </div>
 
-                    <h3 className="text-[22px] font-serif font-bold text-[#0a1622] mb-4 leading-tight group-hover:text-[#c5a35d] transition-colors">
+                    <h3 className="text-lg  font-semibold text-[#0a1622] mb-4 leading-tight group-hover:text-[#c5a35d] transition-colors">
                       {article.title}
                     </h3>
 
