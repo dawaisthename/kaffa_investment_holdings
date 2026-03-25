@@ -72,7 +72,7 @@ export default function NewsMain() {
   return (
     <section className="bg-[#f8f9fa] min-h-screen">
       {/* --- FILTER & SEARCH BAR --- */}
-      <div className=" py-10 px-8 md:px-16 border-b border-gray-100 sticky top-0 z-10">
+      <div className=" py-10 px-8 md:px-16 border-b border-gray-100 z-10">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-8">
           <div className="flex flex-wrap justify-center lg:justify-start gap-2">
             {categories.map((cat) => (
