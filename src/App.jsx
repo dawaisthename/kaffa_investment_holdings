@@ -9,6 +9,8 @@ import News from "./pages/News";
 import Careers from "./pages/Careers";
 import Contact from "./pages/Contact";
 import NewsDetail from "./components/News/NewsDetail";
+import LegalPage from "./components/LegalPage";
+import { legalContent } from "./constants/legalData";
 import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
@@ -27,6 +29,18 @@ function App() {
             <Route path="/news/:slug" element={<NewsDetail />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/contact" element={<Contact />} />
+            <Route
+              path="/privacy"
+              element={<LegalPage data={legalContent.privacy} />}
+            />
+            <Route
+              path="/terms"
+              element={<LegalPage data={legalContent.terms} />}
+            />
+            <Route
+              path="/cookies"
+              element={<LegalPage data={legalContent.cookies} />}
+            />
           </Routes>
         </main>
         <Footer />

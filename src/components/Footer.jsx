@@ -53,9 +53,8 @@ export default function Footer() {
             title="Resources"
             links={[
               { name: "News & Insights", path: "/news" },
-              { name: "Media Kit", path: "#" },
               { name: "Contact Support", path: "/contact" },
-              { name: "Privacy Policy", path: "#" },
+              { name: "Privacy Policy", path: "/privacy" },
             ]}
           />
 
@@ -86,16 +85,25 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="pt-8 border-t border-white/5 flex flex-col md:row-reverse md:flex-row justify-between items-center gap-4 text-[10px] text-gray-500 tracking-[0.2em] uppercase font-medium">
           <p>© {currentYear} Kaffa Investment Holding. All rights reserved.</p>
-          <div className="flex gap-6">
-            <a href="#" className="hover:text-white transition-colors">
+          <div className="flex gap-8 text-[12px] uppercase tracking-widest font-bold text-gray-500">
+            <Link
+              to="/terms"
+              className="hover:text-[#c5a35d] transition-colors"
+            >
               Terms
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
+            </Link>
+            <Link
+              to="/privacy"
+              className="hover:text-[#c5a35d] transition-colors"
+            >
               Privacy
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
+            </Link>
+            <Link
+              to="/cookies"
+              className="hover:text-[#c5a35d] transition-colors"
+            >
               Cookies
-            </a>
+            </Link>
           </div>
         </div>
       </div>
