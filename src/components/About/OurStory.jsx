@@ -1,6 +1,6 @@
 export default function OurStory() {
   return (
-    <section className="bg-white py-24 px-8 md:px-16">
+    <section className="bg-[#FAFAFA] py-24 px-8 md:px-16">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-16 items-start">
         {/* Left Side: Narrative Content */}
         <div className="pt-2">
@@ -10,7 +10,7 @@ export default function OurStory() {
           </span>
 
           {/* Main Heading - Tight leading */}
-          <h2 className="text-[42px] md:text-[52px] font-serif text-[#0a1622] font-bold mb-8 leading-[1.1] tracking-tight">
+          <h2 className="text-[42px] md:text-[40px] font-serif text-[#0a1622] font-bold mb-5 leading-[1.1] tracking-tight">
             Built on conviction, driven by purpose
           </h2>
 
@@ -35,22 +35,22 @@ export default function OurStory() {
         {/* Right Side: Mission & Vision Cards */}
         <div className="flex flex-col gap-5">
           {/* Mission Card - Matches 'MISSION' block */}
-          <div className="bg-[#fcfcfc] p-8 md:p-10 border border-gray-100/60 rounded-xl">
+          <div className="bg-white py-5 px-5 border border-gray-100-2 rounded-xl">
             <span className="text-[#c5a35d] uppercase tracking-[0.2em] text-[10px] font-bold mb-4 block">
               Mission
             </span>
-            <p className="text-[#0a1622] text-[18px] md:text-[20px] font-medium leading-[1.5]">
+            <p className="text-[#0a1622] text-[18px] md:text-[17px] font-medium leading-[1.5]">
               To build and manage a portfolio of high-quality businesses that
               deliver lasting value for investors, employees, and communities.
             </p>
           </div>
 
           {/* Vision Card - Matches 'VISION' block */}
-          <div className="bg-[#fcfcfc] p-8 md:p-10 border border-gray-100/60 rounded-xl">
+          <div className="bg-white py-5 px-5 border border-gray-100-2 rounded-xl">
             <span className="text-[#c5a35d] uppercase tracking-[0.2em] text-[10px] font-bold mb-4 block">
               Vision
             </span>
-            <p className="text-[#0a1622] text-[18px] md:text-[20px] font-medium leading-[1.5]">
+            <p className="text-[#0a1622] text-[18px] md:text-[17px] font-medium leading-[1.5]">
               To be recognized as a leading investment group known for
               principled governance, operational rigor, and sustainable impact
               across the markets we serve.

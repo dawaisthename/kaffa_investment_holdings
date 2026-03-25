@@ -8,12 +8,12 @@ export default function Governance() {
         </span>
 
         {/* Serif Heading */}
-        <h2 className="text-white font-serif text-4xl md:text-[52px] font-bold mb-8 leading-tight">
+        <h2 className="text-white font-serif text-4xl md:text-[40px] font-bold mb-8 leading-tight">
           Committed to the highest standards
         </h2>
 
         {/* Narrative text with balanced width */}
-        <p className="text-gray-400 text-[16px] md:text-[18px] leading-relaxed mb-12 max-w-3xl mx-auto">
+        <p className="text-gray-400 text-[16px] md:text-[16px] leading-relaxed mb-12 max-w-3xl mx-auto">
           Kaffa Holding maintains rigorous corporate governance standards across
           all operations and portfolio companies. Our Board of Directors
           provides independent oversight, and we adhere to international best

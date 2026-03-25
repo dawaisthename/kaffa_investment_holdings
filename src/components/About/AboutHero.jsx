@@ -16,9 +16,9 @@ export default function AboutHero() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-white font-serif text-5xl md:text-7xl lg:text-[80px] leading-[1.05] font-bold tracking-tight"
+            className="text-white text-5xl md:text-6xl font-serif leading-[1.05] mb-8 tracking-tight font-bold"
           >
-            A legacy of <br /> strategic growth
+            About Kaffa Holding
           </motion.h1>
         </div>
 
@@ -29,9 +29,8 @@ export default function AboutHero() {
           className="max-w-md pb-4"
         >
           <p className="text-gray-400 text-lg md:text-xl leading-relaxed font-medium">
-            Founded on the principles of integrity and long-term vision, Kaffa
-            Holding has evolved into a premier investment partner across
-            emerging markets.
+            A principled investment group committed to building enduring value
+            through disciplined capital deployment and operational excellence.
           </p>
         </motion.div>
       </div>

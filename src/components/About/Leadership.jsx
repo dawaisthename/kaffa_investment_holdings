@@ -25,14 +25,14 @@ const team = [
 
 export default function Leadership() {
   return (
-    <section className="bg-white py-24 px-8 md:px-16">
+    <section className="bg-[#FAFAFA] py-24 px-8 md:px-16">
       <div className="max-w-7xl mx-auto">
         {/* Header Section - Matches leadership.png */}
         <div className="text-center mb-16 max-w-4xl mx-auto">
           <span className="text-[#c5a35d] uppercase tracking-[0.4em] text-[11px] font-bold mb-5 block">
             Leadership
           </span>
-          <h2 className="text-4xl md:text-[52px] font-serif text-[#0a1622] leading-tight mb-6 font-bold">
+          <h2 className="text-4xl md:text-[40px] font-serif text-[#0a1622] leading-tight mb-2 font-bold">
             Experienced team, proven track record
           </h2>
           <p className="text-gray-500 text-lg md:text-[20px] leading-relaxed max-w-3xl mx-auto font-medium">
@@ -53,11 +53,11 @@ export default function Leadership() {
                 <User size={40} strokeWidth={1.5} />
               </div>
 
-              <h3 className="text-[20px] font-bold font-serif text-[#0a1622] mb-1">
+              <h3 className="text-[18px] font-semibold text-[#0a1622] mb-1">
                 {member.name}
               </h3>
 
-              <p className="text-[#c5a35d] uppercase tracking-[0.15em] text-[11px] font-bold mb-6">
+              <p className="text-[#c5a35d] uppercase tracking-[0.15em] text-[11px] font-bold mb-4">
                 {member.role}
               </p>
 

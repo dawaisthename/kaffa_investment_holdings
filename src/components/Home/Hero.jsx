@@ -9,9 +9,8 @@ export default function Hero() {
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="max-w-4xl">
           {/* Main Heading - using font-serif (Playfair) and tracking-tight */}
-          <h1 className="text-white text-5xl md:text-7xl font-serif leading-[1.1] mb-8 tracking-tight font-bold">
-            Building enduring <br />
-            value across sectors
+          <h1 className="text-white text-5xl md:text-7xl font-serif leading-[1.05] mb-8 tracking-tight font-bold">
+            Building enduring value across sectors
           </h1>
 
           {/* Subtext - adjusted gray and spacing */}

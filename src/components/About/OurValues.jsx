@@ -27,7 +27,7 @@ export default function OurValues() {
           <span className="text-[#c5a35d] uppercase tracking-[0.4em] text-[11px] font-bold mb-5 block">
             Our Values
           </span>
-          <h2 className="text-4xl md:text-[52px] font-serif text-[#0a1622] font-bold leading-tight">
+          <h2 className="text-[42px] md:text-[40px] font-serif text-[#0a1622] font-bold mb-5 leading-[1.1] tracking-tight">
             The principles that guide us
           </h2>
         </div>
@@ -37,14 +37,14 @@ export default function OurValues() {
           {values.map((v, i) => (
             <div
               key={i}
-              className="bg-white p-12 rounded-xl border border-gray-100/50 shadow-sm flex flex-col items-center text-center transition-all duration-500 hover:shadow-xl hover:-translate-y-1"
+              className="bg-white p-5 rounded-xl border border-gray-100/50 shadow-sm flex flex-col items-center text-center transition-all duration-500 hover:shadow-xl hover:-translate-y-1"
             >
               {/* Icon Box - Soft gray background per the reference */}
               <div className="mb-8 p-5 bg-[#f4f4f4] rounded-lg flex items-center justify-center">
                 {v.icon}
               </div>
 
-              <h3 className="text-[22px] font-bold font-serif text-[#0a1622] mb-5">
+              <h3 className="text-[22px] font-bold font-serif antialiased text-[#0a1622] mb-5">
                 {v.title}
               </h3>
 

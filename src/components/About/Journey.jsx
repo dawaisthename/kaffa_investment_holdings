@@ -1,70 +1,71 @@
 const milestones = [
   {
-    year: "2011",
-    desc: "Kaffa Holding was founded with a focus on regional real estate development.",
+    year: "2014",
+    shortYear: "14",
+    desc: "Kaffa Holding founded with an initial focus on regional real estate.",
   },
   {
-    year: "2013",
-    desc: "Expansion into technology and logistics, opening our first international office.",
+    year: "2016",
+    shortYear: "16",
+    desc: "Expanded into technology investments; launched Kaffa Technologies.",
   },
   {
-    year: "2015",
-    desc: "Formed strategic partnerships with leading financial institutions in the region.",
+    year: "2018",
+    shortYear: "18",
+    desc: "Entered logistics and agriculture sectors; opened second regional office.",
   },
   {
     year: "2020",
-    desc: "Established Kaffa Capital to manage third-party investment funds.",
+    shortYear: "20",
+    desc: "Established Kaffa Capital, our financial services arm.",
   },
   {
     year: "2022",
-    desc: "Exceeded $500M in assets under management, across 6 active operating sectors.",
+    shortYear: "22",
+    desc: "Reached $250M in assets under management; expanded to three operating regions.",
   },
   {
-    year: "2025",
-    desc: "Launched energy and infrastructure fund to drive sustainable growth initiatives.",
+    year: "2024",
+    shortYear: "24",
+    desc: "Launched energy portfolio; surpassed $500M in AUM milestone.",
   },
 ];
 
 export default function Journey() {
   return (
-    <section className="bg-white py-24 px-8 md:px-16">
+    <section className="bg-[#FAFAFA] py-28 px-8 md:px-16">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-24">
+        {/* Header - Matching 'MILESTONES' subhead in image */}
+        <div className="text-center mb-20">
           <span className="text-[#c5a35d] uppercase tracking-[0.4em] text-[11px] font-bold mb-5 block">
-            Our History
+            Milestones
           </span>
-          <h2 className="text-4xl md:text-[52px] font-serif text-[#0a1622] font-bold leading-tight">
+          <h2 className="text-4xl md:text-[40px] font-serif text-[#0a1622] font-bold leading-tight">
             Our journey so far
           </h2>
         </div>
 
-        {/* Timeline */}
+        {/* Timeline Container */}
         <div className="relative max-w-2xl mx-auto">
-          {/* Vertical Line */}
-          <div className="absolute left-[24px] top-0 bottom-0 w-[1px] bg-gray-100 hidden md:block" />
+          {/* Vertical Line - Centered on the circles */}
+          <div className="absolute left-[24px] top-0 bottom-0 w-[1px] bg-gray-200" />
 
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-16">
             {milestones.map((item, i) => (
-              <div
-                key={i}
-                className={`relative flex items-start gap-6 md:gap-10 ${
-                  i !== milestones.length - 1 ? "mb-8 md:mb-16" : ""
-                }`}
-              >
-                {/* Year Circle */}
-                <div className="z-10 w-12 h-12 rounded-full border border-[#c5a35d] bg-white flex items-center justify-center shrink-0 mt-1">
-                  <span className="text-[#c5a35d] text-[11px] font-bold tracking-tighter">
-                    {item.year.slice(2)}
+              <div key={i} className="relative flex items-start gap-10">
+                {/* Year Circle (The '14', '16', etc) */}
+                <div className="z-10 w-12 h-12 rounded-full border border-[#c5a35d] bg-white flex items-center justify-center shrink-0">
+                  <span className="text-[#c5a35d] text-[13px] font-medium">
+                    {item.shortYear}
                   </span>
                 </div>
 
-                {/* Content */}
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
-                  <span className="text-[20px] font-serif font-bold text-[#0a1622] shrink-0 w-14">
+                {/* Content - Stacked Vertically */}
+                <div className="flex flex-col pt-0">
+                  <span className="text-[18px] font-semibold text-[#0a1622] mb-1">
                     {item.year}
                   </span>
-                  <p className="text-gray-500 text-[15px] leading-relaxed font-medium border-l border-gray-100 pl-6 md:pl-8">
+                  <p className="text-gray-500 text-[16px] leading-relaxed max-w-lg">
                     {item.desc}
                   </p>
                 </div>
