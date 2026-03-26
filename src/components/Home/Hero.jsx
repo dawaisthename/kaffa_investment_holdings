@@ -4,7 +4,7 @@ export default function Hero() {
   return (
     <section className="relative bg-[#0a1622] text-white pt-52 pb-32 px-8 md:px-16 lg:px-24 overflow-hidden">
       {/* Background Gradient to mimic the subtle lighting in the screenshot */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+      {/* <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" /> */}
 
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="max-w-4xl">
