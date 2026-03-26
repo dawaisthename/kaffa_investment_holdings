@@ -47,11 +47,11 @@ export default function Header() {
       className={`fixed top-0 w-full z-[100] transition-all duration-500 ease-in-out ${headerBg} px-6 md:px-16 flex justify-between items-center`}
     >
       {/* Logo Section */}
-      <Link to="/" className="flex items-center gap-3 z-[101]">
+      <Link to="/" className="flex items-center gap-1 z-[101]">
         <img
           src={logo}
           alt="Kaffa Logo"
-          className="w-8 md:w-10 h-8 md:h-10 object-contain"
+          className="w-10 md:w-12 h-10 md:h-12 object-contain"
         />
         <div className="flex flex-col leading-tight">
           <span
@@ -61,7 +61,7 @@ export default function Header() {
           >
             Kaffa
           </span>
-          <span className="text-[8px] md:text-[9px] tracking-[0.15em] uppercase text-gray-400">
+          <span className="text-[8px] text-[#c5a35d] md:text-[10px] tracking-[0.15em] uppercase  ">
             Investment Holdings
           </span>
         </div>

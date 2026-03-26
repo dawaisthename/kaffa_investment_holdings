@@ -10,17 +10,17 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
           {/* Column 1: Brand & Identity */}
           <div className="flex flex-col gap-6">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
               <img
                 src={logo}
                 alt="Kaffa Logo"
-                className="w-16 h-10 object-contain brightness-110"
+                className="w-14 h-14 object-contain brightness-110"
               />
               <div className="flex flex-col leading-tight">
                 <span className="font-bold tracking-[0.3em] text-[14px] uppercase">
                   Kaffa
                 </span>
-                <span className="text-[10px] tracking-[0.15em] uppercase text-gray-400">
+                <span className="text-[14px] tracking-[0.15em] uppercase text-gray-400">
                   Investment Holdings
                 </span>
               </div>
@@ -114,7 +114,7 @@ export default function Footer() {
 // Sub-components
 const FooterColumn = ({ title, links }) => (
   <div className="flex flex-col gap-5">
-    <h4 className="text-[11px] uppercase tracking-[0.3em] text-[#c5a35d] font-bold">
+    <h4 className="text-[12px] uppercase tracking-[0.3em] text-[#c5a35d] font-bold">
       {title}
     </h4>
     <div className="flex flex-col gap-3">
@@ -122,7 +122,7 @@ const FooterColumn = ({ title, links }) => (
         <Link
           key={link.name}
           to={link.path}
-          className="text-gray-400 hover:text-white text-[13px] transition-colors duration-300 w-fit"
+          className="text-gray-400 hover:text-white text-[14px] transition-colors duration-300 w-fit"
         >
           {link.name}
         </Link>
