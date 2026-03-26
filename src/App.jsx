@@ -12,6 +12,7 @@ import NewsDetail from "./components/News/NewsDetail";
 import LegalPage from "./components/LegalPage";
 import { legalContent } from "./constants/legalData";
 import ScrollToTop from "./components/ScrollToTop";
+import NotFound from "./components/NotFound";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
               path="/cookies"
               element={<LegalPage data={legalContent.cookies} />}
             />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
         <Footer />
