@@ -25,10 +25,9 @@ export default function Footer() {
                 </span>
               </div>
             </div>
-            <p className="text-gray-400 text-[13px] leading-relaxed max-w-xs">
-              Depplying long-term capital to build enduring value across
-              diversified sectors including real estate, technology, and
-              logistics.
+            <p className="text-gray-400 text-[15px] leading-relaxed max-w-xs">
+              Building enduring value through strategic investments across
+              diversified sectors and geographies.
             </p>
             <div className="flex gap-4 mt-2">
               <SocialIcon Icon={Linkedin} />
@@ -60,22 +59,22 @@ export default function Footer() {
 
           {/* Column 4: Contact Info */}
           <div className="flex flex-col gap-5">
-            <h4 className="text-[11px] uppercase tracking-[0.3em] text-[#c5a35d] font-bold">
+            <h4 className="text-[13px] uppercase tracking-[0.3em] text-[#c5a35d] font-bold">
               Global Office
             </h4>
-            <div className="flex items-start gap-3 text-gray-400 text-[13px]">
-              <MapPin size={18} className="text-[#c5a35d] shrink-0" />
+            <div className="flex items-start gap-3 text-gray-400 text-[14px]">
+              <MapPin size={18} className="text-[#c5a35d]  shrink-0" />
               <span>
                 123 Business Avenue, Financial District,
                 <br />
                 Addis Ababa, Ethiopia
               </span>
             </div>
-            <div className="flex items-center gap-3 text-gray-400 text-[13px]">
+            <div className="flex items-center gap-3 text-gray-400 text-[14px]">
               <Phone size={18} className="text-[#c5a35d] shrink-0" />
-              <span>+251 11 000 0000</span>
+              <span>+971 4 000 0000</span>
             </div>
-            <div className="flex items-center gap-3 text-gray-400 text-[13px]">
+            <div className="flex items-center gap-3 text-gray-400 text-[14px]">
               <Mail size={18} className="text-[#c5a35d] shrink-0" />
               <span>info@kaffaholding.com</span>
             </div>
