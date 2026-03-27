@@ -1,78 +1,53 @@
-import React, { useState } from "react";
-import { Search, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom"; // Import Link for navigation
-
-// 1. Updated Data with Slugs
-const allArticles = [
-  {
-    slug: "kaffa-renewable-energy-expansion",
-    category: "Investments",
-    date: "February 15, 2026",
-    title: "Kaffa Holding Expands Into Renewable Energy Sector",
-    excerpt:
-      "Announcing a strategic acquisition in the renewable energy space, reinforcing our commitment to sustainable growth.",
-  },
-  {
-    slug: "q4-2025-performance-review",
-    category: "Company News",
-    date: "January 28, 2026",
-    title: "Q4 2025 Performance Review Published",
-    excerpt:
-      "Our portfolio companies delivered strong operational results across all sectors in the fourth quarter.",
-  },
-  {
-    slug: "new-regional-office-east-africa",
-    category: "Company News",
-    date: "December 10, 2025",
-    title: "New Regional Office Opened in East Africa",
-    excerpt:
-      "Expanding our on-the-ground presence to better serve portfolio companies and source new opportunities.",
-  },
-  {
-    slug: "esg-reporting-impact-measurement",
-    category: "Insights",
-    date: "November 22, 2025",
-    title: "Our Approach to ESG Reporting and Impact Measurement",
-    excerpt:
-      "A deep dive into the frameworks and metrics we use to track environmental, social, and governance performance.",
-  },
-  {
-    slug: "kaffa-technologies-series-b",
-    category: "Investments",
-    date: "October 5, 2025",
-    title: "Kaffa Technologies Closes Series B Funding Round",
-    excerpt:
-      "Kaffa Technologies raised $15M in a Series B round led by international investors to fuel regional growth.",
-  },
-  {
-    slug: "chairman-interview-africa-future",
-    category: "Press",
-    date: "September 18, 2025",
-    title: "Chairman Interview: Investing in Africa's Future",
-    excerpt:
-      "Our Chairman shares his perspective on the evolving investment landscape in Africa and the Middle East.",
-  },
-];
+import React, { useState, useEffect } from "react";
+import { Search, ArrowRight, Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import axios from "axios";
 
 const categories = ["All", "Company News", "Investments", "Insights", "Press"];
 
 export default function NewsMain() {
+  const [articles, setArticles] = useState([]); // Now dynamic
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredArticles = allArticles.filter((article) => {
+  // 1. Fetch real data from your backend
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/news");
+        setArticles(response.data);
+      } catch (err) {
+        console.error("Failed to fetch news:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNews();
+  }, []);
+
+  // 2. Filter logic remains the same
+  const filteredArticles = articles.filter((article) => {
     const categoryMatch =
       activeCategory === "All" || article.category === activeCategory;
     const searchMatch =
       article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+      article.content.toLowerCase().includes(searchQuery.toLowerCase());
     return categoryMatch && searchMatch;
   });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f8f9fa]">
+        <Loader2 className="animate-spin text-[#c5a35d]" size={40} />
+      </div>
+    );
+  }
 
   return (
     <section className="bg-[#f8f9fa] min-h-screen">
       {/* --- FILTER & SEARCH BAR --- */}
-      <div className=" py-10 px-8 md:px-16 border-b border-gray-100 z-10">
+      <div className="py-10 px-8 md:px-16 border-b border-gray-100">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-8">
           <div className="flex flex-wrap justify-center lg:justify-start gap-2">
             {categories.map((cat) => (
@@ -111,11 +86,10 @@ export default function NewsMain() {
         <div className="max-w-7xl mx-auto">
           {filteredArticles.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredArticles.map((article, i) => (
-                // CHANGED: Wrap card or button in a Link using the slug
+              {filteredArticles.map((article) => (
                 <Link
-                  to={`/news/${article.slug}`}
-                  key={i}
+                  to={`/news/${article._id}`} // Using MongoDB _id for routing
+                  key={article._id}
                   className="group bg-white p-10 rounded-xl border border-gray-100 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
                 >
                   <div>
@@ -125,20 +99,26 @@ export default function NewsMain() {
                       </span>
                       <span className="text-gray-200 text-[12px]">|</span>
                       <span className="text-gray-400 text-[12px] font-medium">
-                        {article.date}
+                        {new Date(article.createdAt).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "long",
+                            day: "numeric",
+                            year: "numeric",
+                          },
+                        )}
                       </span>
                     </div>
 
-                    <h3 className="text-lg  font-semibold text-[#0a1622] mb-4 leading-tight group-hover:text-[#c5a35d] transition-colors">
+                    <h3 className="text-lg font-semibold text-[#0a1622] mb-4 leading-tight group-hover:text-[#c5a35d] transition-colors">
                       {article.title}
                     </h3>
 
-                    <p className="text-gray-500 text-[15px] leading-relaxed mb-10">
-                      {article.excerpt}
+                    <p className="text-gray-500 text-[15px] leading-relaxed mb-10 line-clamp-3">
+                      {article.content}
                     </p>
                   </div>
 
-                  {/* Visual "Read more" - handled by the parent Link */}
                   <div className="flex items-center gap-2 text-[#0a1622] font-bold text-[13px] uppercase tracking-wider">
                     Read more
                     <ArrowRight
@@ -154,15 +134,6 @@ export default function NewsMain() {
               <h3 className="text-2xl font-serif text-gray-400 mb-4">
                 No articles found.
               </h3>
-              <button
-                onClick={() => {
-                  setActiveCategory("All");
-                  setSearchQuery("");
-                }}
-                className="text-[#c5a35d] font-bold uppercase tracking-widest text-sm underline"
-              >
-                Clear all filters
-              </button>
             </div>
           )}
         </div>

@@ -7,12 +7,14 @@ import Portfolio from "./pages/Portfolio";
 import Investment from "./pages/Investment";
 import News from "./pages/News";
 import Careers from "./pages/Careers";
+import JobDetail from "./components/Careers/JobDetail";
 import Contact from "./pages/Contact";
 import NewsDetail from "./components/News/NewsDetail";
 import LegalPage from "./components/LegalPage";
 import { legalContent } from "./constants/legalData";
 import ScrollToTop from "./components/ScrollToTop";
 import NotFound from "./components/NotFound";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
 
 function App() {
   return (
@@ -27,8 +29,9 @@ function App() {
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/investment" element={<Investment />} />
             <Route path="/news" element={<News />} />
-            <Route path="/news/:slug" element={<NewsDetail />} />
+            <Route path="/news/:id" element={<NewsDetail />} />
             <Route path="/careers" element={<Careers />} />
+            <Route path="/careers/:id" element={<JobDetail />} />
             <Route path="/contact" element={<Contact />} />
             <Route
               path="/privacy"
@@ -42,6 +45,7 @@ function App() {
               path="/cookies"
               element={<LegalPage data={legalContent.cookies} />}
             />
+            <Route path="/admin-portal-kaffa" element={<AdminDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

@@ -1,41 +1,49 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Calendar, Tag } from "lucide-react";
-
-// This would typically come from a central data file or API
-const allArticles = [
-  {
-    slug: "kaffa-renewable-energy-expansion",
-    category: "Investments",
-    date: "February 15, 2026",
-    title: "Kaffa Holding Expands Into Renewable Energy Sector",
-    content: [
-      "Kaffa Holding has announced a strategic acquisition in the renewable energy space, reinforcing its commitment to sustainable growth and its target of achieving an 80% renewable portfolio by 2030.",
-      "The acquisition, which includes a diversified portfolio of solar and wind assets across Southeast Asia, positions Kaffa Energy as one of the leading independent renewable energy operators in the region with a combined capacity of over 500 MW.",
-      "The transaction was financed through a combination of equity from the Kaffa Holding balance sheet and project-level debt financing arranged by leading regional banks. The assets are fully contracted with long-term power purchase agreements, providing strong revenue visibility.",
-      "Kaffa Holding plans to invest an additional $100M over the next three years to expand the renewable portfolio into new markets, including Vietnam, the Philippines, and East Africa.",
-    ],
-    quote:
-      "This acquisition represents a transformative step for Kaffa Energy and the broader group. Renewable energy is not just a sustainability imperative — it is one of the most compelling investment opportunities of the decade.",
-    author: "Sara M. Tadesse, CEO of Kaffa Holding",
-  },
-  // ... other articles would be added here
-];
+import { ArrowLeft, Calendar, Tag, Loader2 } from "lucide-react";
+import axios from "axios";
 
 export default function NewsDetail() {
-  const { slug } = useParams();
+  const { id } = useParams(); // Changed from 'slug' to 'id' to match database _id
+  const [article, setArticle] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Find the specific article based on the URL slug
-  const article = allArticles.find((a) => a.slug === slug);
+  useEffect(() => {
+    const fetchArticle = async () => {
+      try {
+        console.log("Fetching article with ID:", id);
+        // Calling your backend for a specific news item
+        const response = await axios.get(
+          `http://localhost:5000/api/news/${id}`,
+        );
+        setArticle(response.data);
+      } catch (err) {
+        console.error("Error fetching article:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchArticle();
+  }, [id]);
 
-  // Fallback if the slug doesn't match any data
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0a1622]">
+        <Loader2 className="animate-spin text-[#c5a35d]" size={48} />
+      </div>
+    );
+  }
+
   if (!article) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8f9fa]">
         <h2 className="text-2xl font-serif text-[#0a1622] mb-4">
           Article not found
         </h2>
-        <Link to="/news" className="text-[#c5a35d] font-bold underline">
+        <Link
+          to="/news"
+          className="text-[#c5a35d] font-bold underline underline-offset-4"
+        >
           Return to News
         </Link>
       </div>
@@ -44,7 +52,7 @@ export default function NewsDetail() {
 
   return (
     <article className="min-h-screen bg-white">
-      {/* 1. Header Hero - Matches News Detail.jpg dark theme */}
+      {/* 1. Header Hero */}
       <header className="bg-[#0a1622] pt-48 pb-28 px-8 md:px-16">
         <div className="max-w-5xl mx-auto text-center">
           <h1 className="text-white font-serif text-4xl md:text-6xl lg:text-[64px] font-bold leading-[1.1] tracking-tight">
@@ -55,7 +63,6 @@ export default function NewsDetail() {
 
       {/* 2. Main Content Area */}
       <div className="max-w-3xl mx-auto px-8 py-20">
-        {/* Navigation & Metadata */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 border-b border-gray-100 pb-8 gap-6">
           <Link
             to="/news"
@@ -70,7 +77,12 @@ export default function NewsDetail() {
 
           <div className="flex gap-6 text-[13px] font-bold">
             <div className="flex items-center gap-2 text-gray-500">
-              <Calendar size={15} className="text-[#c5a35d]" /> {article.date}
+              <Calendar size={15} className="text-[#c5a35d]" />
+              {new Date(article.createdAt).toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
             </div>
             <div className="flex items-center gap-2 text-gray-500">
               <Tag size={15} className="text-[#c5a35d]" /> {article.category}
@@ -80,35 +92,10 @@ export default function NewsDetail() {
 
         {/* Article Body */}
         <div className="space-y-8">
-          {article.content.slice(0, 2).map((para, i) => (
-            <p
-              key={i}
-              className="text-gray-600 text-[18px] leading-[1.8] font-medium"
-            >
-              {para}
-            </p>
-          ))}
-
-          {/* Featured Quote Section */}
-          {article.quote && (
-            <div className="py-6 border-y border-gray-100 my-12">
-              <blockquote className="text-[#0a1622] font-serif text-2xl md:text-3xl italic leading-relaxed mb-4">
-                "{article.quote}"
-              </blockquote>
-              <cite className="text-[#c5a35d] font-bold text-sm not-italic tracking-widest uppercase">
-                — {article.author}
-              </cite>
-            </div>
-          )}
-
-          {article.content.slice(2).map((para, i) => (
-            <p
-              key={i}
-              className="text-gray-600 text-[18px] leading-[1.8] font-medium"
-            >
-              {para}
-            </p>
-          ))}
+          {/* We use whitespace-pre-wrap to preserve paragraphs from the textarea in the admin dashboard */}
+          <p className="text-gray-600 text-[18px] leading-[1.8] font-medium whitespace-pre-wrap">
+            {article.content}
+          </p>
         </div>
 
         {/* Bottom Navigation */}
