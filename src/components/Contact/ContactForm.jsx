@@ -43,7 +43,7 @@ export default function ContactForm() {
                 <input
                   type={field.type}
                   placeholder={field.placeholder}
-                  className="bg-[#f9f9f9] border border-gray-200/50 p-2 rounded-md outline-none focus:border-[#c5a35d] focus:ring-1 focus:ring-[#c5a35d] transition-all text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]"
+                  className="bg-[#f9f9f9] text-black border border-gray-200/50 p-2 rounded-md outline-none focus:border-[#c5a35d] focus:ring-1 focus:ring-[#c5a35d] transition-all text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]"
                 />
               </div>
             ))}
@@ -76,7 +76,7 @@ export default function ContactForm() {
               <textarea
                 rows="6"
                 placeholder="How can we help?"
-                className="bg-[#f9f9f9] border border-gray-200/50 p-4 rounded-md outline-none focus:border-[#c5a35d] focus:ring-1 focus:ring-[#c5a35d] transition-all text-sm resize-none shadow-[inset_0_1px_2_rgba(0,0,0,0.05)]"
+                className="bg-[#f9f9f9] text-black border border-gray-200/50 p-4 rounded-md outline-none focus:border-[#c5a35d] focus:ring-1 focus:ring-[#c5a35d] transition-all text-sm resize-none shadow-[inset_0_1px_2_rgba(0,0,0,0.05)]"
               ></textarea>
             </div>
 
