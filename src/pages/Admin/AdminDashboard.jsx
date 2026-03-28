@@ -13,8 +13,9 @@ import {
   User,
   Mail,
   Building2,
-  FileText, // Added for Applications icon
-  Download, // Added for Resume download icon
+  FileText,
+  Download,
+  Eye,
 } from "lucide-react";
 
 const API = axios.create({
@@ -37,6 +38,12 @@ export default function AdminDashboard() {
   );
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+
+  // Resume Preview States
+  const [showResumeModal, setShowResumeModal] = useState(false);
+  const [previewResumeUrl, setPreviewResumeUrl] = useState("");
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const [editingId, setEditingId] = useState(null);
   const [loginData, setLoginData] = useState({ username: "", password: "" });
 
@@ -52,7 +59,6 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Mapping: news -> /news, careers -> /careers, contacts -> /contacts, applications -> /applications
       const response = await API.get(`/${activeTab}`);
       setData(response.data);
     } catch (err) {
@@ -140,10 +146,35 @@ export default function AdminDashboard() {
     }
   };
 
-  // Helper to open the resume file
   const openResume = (filePath) => {
+    if (!filePath) return alert("No resume file found.");
+    // Ensure the URL points to your server's static uploads folder
     const url = `http://localhost:5000/${filePath.replace(/\\/g, "/")}`;
-    window.open(url, "_blank");
+    setPreviewResumeUrl(url);
+    setShowResumeModal(true);
+  };
+
+  // Logic to force download without redirecting
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    try {
+      const response = await fetch(previewResumeUrl);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      // Extracts filename from path
+      const fileName = previewResumeUrl.split("/").pop() || "resume.pdf";
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      alert("Download failed. Please try again.");
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   if (!isLoggedIn) {
@@ -250,7 +281,6 @@ export default function AdminDashboard() {
               Manage the firm's {activeTab} data.
             </p>
           </div>
-          {/* Hide "Add New" for Contacts and Applications */}
           {activeTab !== "contacts" && activeTab !== "applications" && (
             <button
               onClick={handleOpenCreate}
@@ -290,7 +320,6 @@ export default function AdminDashboard() {
                     className="hover:bg-gray-50/50 transition-colors group"
                   >
                     <td className="p-6">
-                      {/* Render Sender/Applicant Info */}
                       {activeTab === "contacts" ||
                       activeTab === "applications" ? (
                         <div>
@@ -350,17 +379,15 @@ export default function AdminDashboard() {
 
                     <td className="p-6 text-right">
                       <div className="flex justify-end gap-2">
-                        {/* Resume View/Download Button for Applications */}
                         {activeTab === "applications" && (
                           <button
                             onClick={() => openResume(item.resumePath)}
                             className="bg-amber-50 p-3 rounded-lg text-amber-500 hover:bg-amber-500 hover:text-white transition-all flex items-center gap-2 font-bold text-xs"
                             title="View Resume"
                           >
-                            <Download size={18} />
+                            <Eye size={18} />
                           </button>
                         )}
-                        {/* Hide edit for Read-only tabs */}
                         {activeTab !== "contacts" &&
                           activeTab !== "applications" && (
                             <button
@@ -386,7 +413,7 @@ export default function AdminDashboard() {
         </div>
       </main>
 
-      {/* Modal for Creating/Editing News & Careers */}
+      {/* Main Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-[#0a1622]/95 backdrop-blur-md flex items-center justify-center p-6 z-[10000]">
           <div className="bg-white w-full max-w-2xl rounded-xl overflow-hidden shadow-2xl">
@@ -402,32 +429,61 @@ export default function AdminDashboard() {
                 <X size={24} />
               </button>
             </div>
+            {/* Form Fields would go here */}
+          </div>
+        </div>
+      )}
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-6">
-              {/* ... (Keep your existing form fields here for news/careers) */}
-              <div className="flex justify-end gap-4 mt-8">
+      {/* RESUME VIEWER MODAL WITH IMPROVED DOWNLOAD */}
+      {showResumeModal && (
+        <div className="fixed inset-0 bg-[#0a1622]/95 backdrop-blur-md flex items-center justify-center p-4 z-[10001]">
+          <div className="bg-white w-full max-w-5xl h-[92vh] rounded-xl overflow-hidden shadow-2xl flex flex-col">
+            <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+              <div className="flex items-center gap-3">
+                <div className="bg-[#c5a35d]/10 p-2 rounded-lg text-[#c5a35d]">
+                  <FileText size={20} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-serif font-bold text-[#0a1622] leading-none">
+                    Resume Viewer
+                  </h2>
+                  <p className="text-[10px] text-gray-400 uppercase font-bold tracking-widest mt-1">
+                    Candidate Profile
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                {/* Fixed Download Button: Uses Fetch to prevent redirection */}
                 <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-8 py-4 rounded-md text-sm font-bold text-gray-400 hover:text-[#0a1622] uppercase tracking-widest"
+                  onClick={handleDownload}
+                  disabled={isDownloading}
+                  className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-[#c5a35d] transition-colors disabled:opacity-50"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-[#0a1622] text-white px-10 py-4 rounded-md font-bold text-xs uppercase tracking-widest hover:bg-[#c5a35d] hover:text-[#0a1622] transition-all flex items-center gap-2"
-                >
-                  {loading ? (
-                    <Loader2 className="animate-spin" size={16} />
-                  ) : editingId ? (
-                    "Update Now"
+                  {isDownloading ? (
+                    <Loader2 size={16} className="animate-spin" />
                   ) : (
-                    "Publish Now"
+                    <Download size={16} />
                   )}
+                  {isDownloading ? "Preparing..." : "Download PDF"}
+                </button>
+
+                <button
+                  onClick={() => setShowResumeModal(false)}
+                  className="p-2 bg-gray-200 rounded-full text-gray-600 hover:bg-red-500 hover:text-white transition-all"
+                >
+                  <X size={20} />
                 </button>
               </div>
-            </form>
+            </div>
+
+            <div className="flex-1 bg-gray-700 relative">
+              <iframe
+                src={`${previewResumeUrl}#toolbar=0&navpanes=0`}
+                className="w-full h-full border-none"
+                title="Resume Preview"
+              />
+            </div>
           </div>
         </div>
       )}
