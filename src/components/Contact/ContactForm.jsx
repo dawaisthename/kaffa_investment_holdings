@@ -1,10 +1,49 @@
-import { Mail, Phone, MapPin, ChevronDown } from "lucide-react";
+import React, { useState } from "react";
+import axios from "axios";
+import { Mail, Phone, MapPin, ChevronDown, Loader2 } from "lucide-react";
 
 export default function ContactForm() {
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    company: "",
+    inquiryType: "General Inquiry",
+    message: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState({ type: "", msg: "" });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await axios.post("http://localhost:5000/api/contacts", formData);
+      setStatus({ type: "success", msg: "Message sent successfully!" });
+      setFormData({
+        fullName: "",
+        email: "",
+        company: "",
+        inquiryType: "General Inquiry",
+        message: "",
+      });
+    } catch (err) {
+      setStatus({
+        type: "error",
+        msg: "Failed to send message. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section className="bg-[#FAFAFA] py-28 px-8 md:px-16">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-16">
-        {/* Left: Message Form */}
         <div className="lg:col-span-2">
           <span className="text-[#c5a35d] uppercase tracking-[0.4em] text-[11px] font-bold mb-5 block">
             Send a Message
@@ -17,49 +56,71 @@ export default function ContactForm() {
             business days.
           </p>
 
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
-            {/* Input Wrapper Style for shadow and background */}
-            {[
-              {
-                label: "Full Name *",
-                placeholder: "Your full name",
-                type: "text",
-              },
-              {
-                label: "Email *",
-                placeholder: "you@company.com",
-                type: "email",
-              },
-              {
-                label: "Company",
-                placeholder: "Your company (optional)",
-                type: "text",
-              },
-            ].map((field, idx) => (
-              <div key={idx} className="flex flex-col gap-3">
-                <label className="text-[#0a1622] text-[11px] font-bold uppercase tracking-widest">
-                  {field.label}
-                </label>
-                <input
-                  type={field.type}
-                  placeholder={field.placeholder}
-                  className="bg-[#f9f9f9] text-black border border-gray-200/50 p-2 rounded-md outline-none focus:border-[#c5a35d] focus:ring-1 focus:ring-[#c5a35d] transition-all text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]"
-                />
-              </div>
-            ))}
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10"
+          >
+            {/* Full Name */}
+            <div className="flex flex-col gap-3">
+              <label className="text-[#0a1622] text-[11px] font-bold uppercase tracking-widest">
+                Full Name *
+              </label>
+              <input
+                required
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                placeholder="Your full name"
+                className="bg-[#f9f9f9] text-black border border-gray-200/50 p-3 rounded-md outline-none focus:border-[#c5a35d] transition-all text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]"
+              />
+            </div>
 
-            {/* Inquiry Type Select */}
+            {/* Email */}
+            <div className="flex flex-col gap-3">
+              <label className="text-[#0a1622] text-[11px] font-bold uppercase tracking-widest">
+                Email *
+              </label>
+              <input
+                required
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="you@company.com"
+                className="bg-[#f9f9f9] text-black border border-gray-200/50 p-3 rounded-md outline-none focus:border-[#c5a35d] transition-all text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]"
+              />
+            </div>
+
+            {/* Company */}
+            <div className="flex flex-col gap-3">
+              <label className="text-[#0a1622] text-[11px] font-bold uppercase tracking-widest">
+                Company
+              </label>
+              <input
+                name="company"
+                value={formData.company}
+                onChange={handleChange}
+                placeholder="Your company (optional)"
+                className="bg-[#f9f9f9] text-black border border-gray-200/50 p-3 rounded-md outline-none focus:border-[#c5a35d] transition-all text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]"
+              />
+            </div>
+
+            {/* Inquiry Type */}
             <div className="flex flex-col gap-3">
               <label className="text-[#0a1622] text-[11px] font-bold uppercase tracking-widest">
                 Inquiry Type
               </label>
               <div className="relative">
-                <select className="w-full bg-[#f9f9f9] border border-gray-200/50 p-2 rounded-md outline-none focus:border-[#c5a35d] focus:ring-1 focus:ring-[#c5a35d] transition-all text-sm text-gray-500 appearance-none shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer">
+                <select
+                  name="inquiryType"
+                  value={formData.inquiryType}
+                  onChange={handleChange}
+                  className="w-full bg-[#f9f9f9] border border-gray-200/50 p-3 rounded-md outline-none focus:border-[#c5a35d] transition-all text-sm text-gray-500 appearance-none shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer"
+                >
                   <option>General Inquiry</option>
                   <option>Investment Inquiry</option>
                   <option>Partnership</option>
                   <option>Media / Press</option>
-                  <option>Careers</option>
                 </select>
                 <ChevronDown
                   size={16}
@@ -68,21 +129,41 @@ export default function ContactForm() {
               </div>
             </div>
 
-            {/* Message Area */}
+            {/* Message */}
             <div className="md:col-span-2 flex flex-col gap-3">
               <label className="text-[#0a1622] text-[11px] font-bold uppercase tracking-widest">
                 Message *
               </label>
               <textarea
+                required
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
                 rows="6"
                 placeholder="How can we help?"
-                className="bg-[#f9f9f9] text-black border border-gray-200/50 p-4 rounded-md outline-none focus:border-[#c5a35d] focus:ring-1 focus:ring-[#c5a35d] transition-all text-sm resize-none shadow-[inset_0_1px_2_rgba(0,0,0,0.05)]"
+                className="bg-[#f9f9f9] text-black border border-gray-200/50 p-4 rounded-md outline-none focus:border-[#c5a35d] transition-all text-sm resize-none shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]"
               ></textarea>
             </div>
 
-            <button className="md:col-span-2 bg-[#0a1622] text-white py-5 rounded-md font-bold text-[13px] uppercase tracking-[0.3em] hover:bg-[#162a3d] transition-all mt-4 flex items-center justify-center gap-2">
-              Send Message <span className="text-lg">→</span>
+            <button
+              disabled={loading}
+              className="md:col-span-2 bg-[#0a1622] text-white py-5 rounded-md font-bold text-[13px] uppercase tracking-[0.3em] hover:bg-[#162a3d] transition-all mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
+            >
+              {loading ? (
+                <Loader2 className="animate-spin" size={18} />
+              ) : (
+                "Send Message"
+              )}{" "}
+              <span className="text-lg">→</span>
             </button>
+
+            {status.msg && (
+              <p
+                className={`md:col-span-2 text-center text-sm font-bold ${status.type === "success" ? "text-green-600" : "text-red-600"}`}
+              >
+                {status.msg}
+              </p>
+            )}
           </form>
         </div>
 

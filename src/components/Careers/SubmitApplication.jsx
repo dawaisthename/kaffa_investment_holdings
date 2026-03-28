@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Loader2 } from "lucide-react";
 
 export default function SubmitApplication({ prefilledPosition = "" }) {
   const [formData, setFormData] = useState({
@@ -8,6 +10,7 @@ export default function SubmitApplication({ prefilledPosition = "" }) {
     message: "",
   });
   const [resume, setResume] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // Update position if the prop changes (e.g., when navigating between different jobs)
   useEffect(() => {
@@ -19,26 +22,55 @@ export default function SubmitApplication({ prefilledPosition = "" }) {
   };
 
   const handleFileChange = (e) => {
-    setResume(e.target.files[0]);
+    if (e.target.files && e.target.files[0]) {
+      setResume(e.target.files[0]);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    // Create FormData object to handle text + file upload
+    // Create FormData object to handle text + file upload for Multer
     const data = new FormData();
     data.append("fullName", formData.fullName);
     data.append("email", formData.email);
     data.append("position", formData.position);
-    data.append("message", formData.message);
-    if (resume) data.append("resume", resume);
+    data.append("coverLetter", formData.message);
+    if (resume) {
+      data.append("resume", resume);
+    } else {
+      alert("Please upload your resume before submitting.");
+      setLoading(false);
+      return;
+    }
 
     try {
-      // Logic for your API call goes here
-      console.log("Submitting:", Object.fromEntries(data));
+      // API call to your backend applications endpoint
+      await axios.post("http://localhost:5000/api/applications", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       alert("Application sent successfully!");
+
+      // Reset form after successful submission
+      setFormData({
+        fullName: "",
+        email: "",
+        position: prefilledPosition,
+        message: "",
+      });
+      setResume(null);
     } catch (err) {
-      alert("Failed to send application.");
+      console.error("Submission error:", err);
+      alert(
+        err.response?.data?.error ||
+          "Failed to send application. Please try again.",
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,7 +108,7 @@ export default function SubmitApplication({ prefilledPosition = "" }) {
               value={formData.fullName}
               onChange={handleChange}
               placeholder="Your full name"
-              className="bg-[#fcfcfc] border border-gray-300 shadow-sm p-2 text-[14px] text-black rounded outline-none focus:border-[#c5a35d] transition-colors placeholder:text-gray-400"
+              className="bg-[#fcfcfc] border border-gray-300 shadow-sm p-3 text-[14px] text-black rounded outline-none focus:border-[#c5a35d] transition-colors placeholder:text-gray-400"
             />
           </div>
 
@@ -95,7 +127,7 @@ export default function SubmitApplication({ prefilledPosition = "" }) {
               value={formData.email}
               onChange={handleChange}
               placeholder="you@email.com"
-              className="bg-[#fcfcfc] border border-gray-300 shadow-sm p-2 text-[14px] text-black rounded outline-none focus:border-[#c5a35d] transition-colors placeholder:text-gray-400"
+              className="bg-[#fcfcfc] border border-gray-300 shadow-sm p-3 text-[14px] text-black rounded outline-none focus:border-[#c5a35d] transition-colors placeholder:text-gray-400"
             />
           </div>
 
@@ -113,7 +145,7 @@ export default function SubmitApplication({ prefilledPosition = "" }) {
               value={formData.position}
               onChange={handleChange}
               placeholder="e.g., Investment Analyst"
-              className="bg-[#fcfcfc] border border-gray-300 shadow-sm p-2 text-[14px] text-black rounded outline-none focus:border-[#c5a35d] transition-colors placeholder:text-gray-400"
+              className="bg-[#fcfcfc] border border-gray-300 shadow-sm p-3 text-[14px] text-black rounded outline-none focus:border-[#c5a35d] transition-colors placeholder:text-gray-400"
             />
           </div>
 
@@ -131,7 +163,7 @@ export default function SubmitApplication({ prefilledPosition = "" }) {
               onChange={handleChange}
               rows="5"
               placeholder="Tell us why you'd be a good fit..."
-              className="bg-[#fcfcfc] border border-gray-300 shadow-sm p-2 text-[14px] text-black rounded outline-none focus:border-[#c5a35d] transition-colors placeholder:text-gray-400 resize-none"
+              className="bg-[#fcfcfc] border border-gray-300 shadow-sm p-3 text-[14px] text-black rounded outline-none focus:border-[#c5a35d] transition-colors placeholder:text-gray-400 resize-none"
             />
           </div>
 
@@ -157,7 +189,9 @@ export default function SubmitApplication({ prefilledPosition = "" }) {
             />
             <label
               htmlFor="resumeUpload"
-              className={`border shadow-sm border-dashed rounded-lg p-6 text-center hover:bg-gray-50 transition-colors cursor-pointer group ${resume ? "border-[#c5a35d] bg-[#fcf8ef]" : "border-gray-300"}`}
+              className={`border shadow-sm border-dashed rounded-lg p-10 text-center hover:bg-gray-50 transition-colors cursor-pointer group ${
+                resume ? "border-[#c5a35d] bg-[#fcf8ef]" : "border-gray-300"
+              }`}
             >
               <span className="text-gray-400 text-[13px] font-medium group-hover:text-[#0a1622]">
                 {resume
@@ -169,9 +203,19 @@ export default function SubmitApplication({ prefilledPosition = "" }) {
 
           <button
             type="submit"
-            className="md:col-span-2 bg-[#0a1622] text-white py-4 rounded font-bold text-[12px] uppercase tracking-[0.3em] hover:bg-[#162a3d] transition-all mt-4 shadow-sm flex items-center justify-center gap-2"
+            disabled={loading}
+            className="md:col-span-2 bg-[#0a1622] text-white py-5 rounded font-bold text-[12px] uppercase tracking-[0.3em] hover:bg-[#162a3d] transition-all mt-4 shadow-sm flex items-center justify-center gap-2 disabled:opacity-70"
           >
-            Submit Application <span>→</span>
+            {loading ? (
+              <>
+                <Loader2 className="animate-spin" size={18} />
+                Sending...
+              </>
+            ) : (
+              <>
+                Submit Application <span>→</span>
+              </>
+            )}
           </button>
         </form>
       </div>
