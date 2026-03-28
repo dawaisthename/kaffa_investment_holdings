@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Search, ArrowRight, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import client from "../../api/client"; 
 
 const categories = ["All", "Company News", "Investments", "Insights", "Press"];
 
@@ -15,7 +15,7 @@ export default function NewsMain() {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/news");
+        const response = await client.get("/news"); // use client
         setArticles(response.data);
       } catch (err) {
         console.error("Failed to fetch news:", err);
@@ -25,7 +25,6 @@ export default function NewsMain() {
     };
     fetchNews();
   }, []);
-
   // 2. Filter logic remains the same
   const filteredArticles = articles.filter((article) => {
     const categoryMatch =

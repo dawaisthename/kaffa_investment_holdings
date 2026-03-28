@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Calendar, Tag, Loader2 } from "lucide-react";
-import axios from "axios";
+import client from "../../api/client";
 
 export default function NewsDetail() {
   const { id } = useParams(); // Changed from 'slug' to 'id' to match database _id
@@ -13,9 +13,7 @@ export default function NewsDetail() {
       try {
         console.log("Fetching article with ID:", id);
         // Calling your backend for a specific news item
-        const response = await axios.get(
-          `http://localhost:5000/api/news/${id}`,
-        );
+        const response = await client.get(`/news/${id}`);
         setArticle(response.data);
       } catch (err) {
         console.error("Error fetching article:", err);

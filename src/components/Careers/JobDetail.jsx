@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import client from "../../api/client";
 import { Briefcase, MapPin, Clock, ChevronLeft, Loader2 } from "lucide-react";
 // Import your existing component
 import SubmitApplication from "./SubmitApplication";
@@ -14,9 +14,7 @@ export default function JobDetail() {
   useEffect(() => {
     const fetchJob = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/careers/${id}`,
-        );
+        const response = await client.get(`/careers/${id}`);
         setJob(response.data);
       } catch (err) {
         console.error("Job not found");

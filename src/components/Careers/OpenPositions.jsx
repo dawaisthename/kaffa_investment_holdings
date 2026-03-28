@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import client from "../../api/client";
 import { useNavigate } from "react-router-dom";
 import { Briefcase, MapPin, Clock, ArrowRight, Loader2 } from "lucide-react";
 
@@ -10,7 +10,7 @@ export default function OpenPositions() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/careers");
+        const response = await client.get("/careers");
         setJobs(response.data);
       } catch (err) {
         console.error("Failed to fetch jobs");
