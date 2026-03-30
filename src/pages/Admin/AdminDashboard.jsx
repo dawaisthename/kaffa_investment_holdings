@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import {
   Plus,
   Trash2,
@@ -12,41 +11,61 @@ import {
   ShieldCheck,
   User,
   Mail,
-  Building2,
   FileText,
   Download,
+  EyeOff,
   Eye,
 } from "lucide-react";
-
-const API = axios.create({
-  baseURL: "http://localhost:5000/api",
-});
-
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem("kaffa_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+import client from "../../api/client";
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState("news");
-  const [data, setData] = useState([]);
+  // Authentication & Core State
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("kaffa_token"),
   );
+  const [activeTab, setActiveTab] = useState("news");
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+
+  // Login Specific States
+  const [loginData, setLoginData] = useState({ username: "", password: "" });
+  const [loginError, setLoginError] = useState("");
+
+  // Password Update States
+  const [pwdData, setPwdData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  // Toggle Visibility for all password fields
+  const [showPasswords, setShowPasswords] = useState({
+    login: false,
+    current: false,
+    new: false,
+    confirm: false,
+  });
+
+  // UI Feedback States
+  const [confirmModal, setConfirmModal] = useState({
+    show: false,
+    id: null,
+    title: "",
+  });
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    type: "success",
+  });
+  const [editingId, setEditingId] = useState(null);
 
   // Resume Preview States
   const [showResumeModal, setShowResumeModal] = useState(false);
   const [previewResumeUrl, setPreviewResumeUrl] = useState("");
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const [editingId, setEditingId] = useState(null);
-  const [loginData, setLoginData] = useState({ username: "", password: "" });
-
+  // Form Data for News/Careers
   const [formData, setFormData] = useState({
     title: "",
     content: "",
@@ -56,10 +75,20 @@ export default function AdminDashboard() {
     jobType: "Full-time",
   });
 
+  const toggleVisibility = (field) => {
+    setShowPasswords((prev) => ({ ...prev, [field]: !prev[field] }));
+  };
+
+  const showToast = (msg, type = "success") => {
+    setToast({ show: true, message: msg, type });
+    setTimeout(() => setToast((prev) => ({ ...prev, show: false })), 4000);
+  };
+
   const fetchData = async () => {
+    if (activeTab === "settings") return;
     setLoading(true);
     try {
-      const response = await API.get(`/${activeTab}`);
+      const response = await client.get(`/${activeTab}`);
       setData(response.data);
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
@@ -72,15 +101,22 @@ export default function AdminDashboard() {
     if (isLoggedIn) fetchData();
   }, [isLoggedIn, activeTab]);
 
+  // --- AUTHENTICATION HANDLERS ---
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setLoginError("");
     try {
-      const response = await API.post("/auth/login", loginData);
+      const response = await client.post("/auth/login", loginData);
       localStorage.setItem("kaffa_token", response.data.token);
       setIsLoggedIn(true);
+      showToast("Welcome back, Admin");
     } catch (err) {
-      alert(err.response?.data?.message || "Login Failed");
+      const msg =
+        err.response?.data?.message ||
+        "Login Failed. Please check your credentials.";
+      setLoginError(msg);
+      showToast(msg, "error");
     } finally {
       setLoading(false);
     }
@@ -91,6 +127,31 @@ export default function AdminDashboard() {
     setIsLoggedIn(false);
   };
 
+  const handlePasswordUpdate = async (e) => {
+    e.preventDefault();
+    if (pwdData.newPassword !== pwdData.confirmPassword) {
+      return showToast("Passwords do not match", "error");
+    }
+    setLoading(true);
+    try {
+      // Backend expects { currentPassword, newPassword }
+      await client.put("/auth/update-password", {
+        currentPassword: pwdData.currentPassword,
+        newPassword: pwdData.newPassword,
+      });
+      showToast("Password updated successfully");
+      setPwdData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    } catch (err) {
+      showToast(
+        err.response?.data?.message || "Internal Server Error",
+        "error",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // --- CRUD HANDLERS ---
   const handleOpenCreate = () => {
     setEditingId(null);
     setFormData({
@@ -122,39 +183,51 @@ export default function AdminDashboard() {
     setLoading(true);
     try {
       if (editingId) {
-        await API.put(`/${activeTab}/${editingId}`, formData);
+        await client.put(`/${activeTab}/${editingId}`, formData);
+        showToast("Record updated successfully");
       } else {
-        await API.post(`/${activeTab}`, formData);
+        await client.post(`/${activeTab}`, formData);
+        showToast("New entry published");
       }
       setShowModal(false);
-      setEditingId(null);
       fetchData();
     } catch (err) {
-      alert("Action failed. Please try again.");
+      showToast("Operation failed", "error");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Permanently delete this item?")) return;
+  const triggerDelete = (item) => {
+    setConfirmModal({
+      show: true,
+      id: item._id,
+      title: item.title || item.fullName,
+    });
+  };
+
+  const executeDelete = async () => {
+    setLoading(true);
     try {
-      await API.delete(`/${activeTab}/${id}`);
+      await client.delete(`/${activeTab}/${confirmModal.id}`);
+      showToast("Deleted successfully");
       fetchData();
     } catch (err) {
-      alert("Delete failed");
+      showToast("Delete failed", "error");
+    } finally {
+      setLoading(false);
+      setConfirmModal({ show: false, id: null, title: "" });
     }
   };
 
+  // --- RESUME UTILITIES ---
   const openResume = (filePath) => {
-    if (!filePath) return alert("No resume file found.");
-    // Ensure the URL points to your server's static uploads folder
+    if (!filePath) return showToast("No resume found", "error");
     const url = `http://localhost:5000/${filePath.replace(/\\/g, "/")}`;
     setPreviewResumeUrl(url);
     setShowResumeModal(true);
   };
 
-  // Logic to force download without redirecting
   const handleDownload = async () => {
     setIsDownloading(true);
     try {
@@ -163,20 +236,22 @@ export default function AdminDashboard() {
       const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = blobUrl;
-      // Extracts filename from path
-      const fileName = previewResumeUrl.split("/").pop() || "resume.pdf";
-      link.setAttribute("download", fileName);
+      link.setAttribute(
+        "download",
+        previewResumeUrl.split("/").pop() || "resume.pdf",
+      );
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(blobUrl);
     } catch (error) {
-      alert("Download failed. Please try again.");
+      showToast("Download failed", "error");
     } finally {
       setIsDownloading(false);
     }
   };
 
+  // --- RENDER LOGIN VIEW ---
   if (!isLoggedIn) {
     return (
       <div className="fixed inset-0 z-[9999] bg-[#0a1622] flex items-center justify-center p-6">
@@ -187,7 +262,7 @@ export default function AdminDashboard() {
           <div className="flex justify-center mb-6 text-[#c5a35d] bg-[#fcf8ef] p-4 rounded-full w-fit mx-auto">
             <ShieldCheck size={40} />
           </div>
-          <h2 className="text-2xl font-serif font-bold mb-8 text-[#0a1622] text-center">
+          <h2 className="text-2xl font-serif font-bold mb-8 text-[#0a1622] text-center uppercase tracking-widest">
             Kaffa Admin
           </h2>
           <div className="space-y-4">
@@ -203,30 +278,51 @@ export default function AdminDashboard() {
               />
               <User className="absolute left-4 top-4 text-gray-300" size={20} />
             </div>
-            <input
-              type="password"
-              placeholder="Password"
-              required
-              className="w-full p-4 bg-gray-50 border border-gray-100 rounded-md outline-none focus:border-[#c5a35d]"
-              onChange={(e) =>
-                setLoginData({ ...loginData, password: e.target.value })
-              }
-            />
+            <div className="relative">
+              <input
+                type={showPasswords.login ? "text" : "password"}
+                placeholder="Password"
+                required
+                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-md outline-none focus:border-[#c5a35d] pr-12"
+                onChange={(e) =>
+                  setLoginData({ ...loginData, password: e.target.value })
+                }
+              />
+              <button
+                type="button"
+                onClick={() => toggleVisibility("login")}
+                className="absolute right-4 top-4 text-gray-300 hover:text-[#c5a35d]"
+              >
+                {showPasswords.login ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
+
+          {loginError && (
+            <div className="mt-4 p-3 bg-red-50 border-l-2 border-red-500 text-red-600 text-[10px] font-bold uppercase tracking-wider">
+              {loginError}
+            </div>
+          )}
+
           <button
             disabled={loading}
-            className="w-full mt-8 bg-[#0a1622] text-white py-4 rounded-md font-bold hover:bg-[#162a3d] transition-all flex justify-center items-center"
+            className="w-full mt-8 bg-[#0a1622] text-white py-4 rounded-md font-bold hover:bg-[#162a3d] transition-all flex justify-center items-center gap-2 tracking-widest text-xs"
           >
-            {loading ? <Loader2 className="animate-spin" /> : "SIGN IN"}
+            {loading ? (
+              <Loader2 className="animate-spin" size={18} />
+            ) : (
+              "SECURE LOGIN"
+            )}
           </button>
         </form>
       </div>
     );
   }
 
+  // --- RENDER DASHBOARD VIEW ---
   return (
     <div className="fixed inset-0 z-[9998] bg-[#fcfcfc] flex overflow-hidden">
-      {/* Sidebar */}
+      {/* Sidebar Navigation */}
       <aside className="w-72 bg-[#0a1622] text-white flex flex-col shadow-2xl">
         <div className="p-8 border-b border-white/5">
           <span className="text-[#c5a35d] font-bold tracking-[0.3em] text-[10px] uppercase block mb-1">
@@ -235,32 +331,42 @@ export default function AdminDashboard() {
           <span className="text-xl font-serif font-bold">Internal Portal</span>
         </div>
         <nav className="flex-1 p-6 space-y-3">
-          <button
-            onClick={() => setActiveTab("news")}
-            className={`flex items-center gap-4 w-full p-4 rounded-lg text-sm font-bold ${activeTab === "news" ? "bg-[#c5a35d] text-[#0a1622]" : "text-gray-400 hover:bg-white/5"}`}
-          >
-            <Newspaper size={18} /> News & Media
-          </button>
-          <button
-            onClick={() => setActiveTab("careers")}
-            className={`flex items-center gap-4 w-full p-4 rounded-lg text-sm font-bold ${activeTab === "careers" ? "bg-[#c5a35d] text-[#0a1622]" : "text-gray-400 hover:bg-white/5"}`}
-          >
-            <Briefcase size={18} /> Careers
-          </button>
-          <button
-            onClick={() => setActiveTab("applications")}
-            className={`flex items-center gap-4 w-full p-4 rounded-lg text-sm font-bold ${activeTab === "applications" ? "bg-[#c5a35d] text-[#0a1622]" : "text-gray-400 hover:bg-white/5"}`}
-          >
-            <FileText size={18} /> Job Applications
-          </button>
-          <button
-            onClick={() => setActiveTab("contacts")}
-            className={`flex items-center gap-4 w-full p-4 rounded-lg text-sm font-bold ${activeTab === "contacts" ? "bg-[#c5a35d] text-[#0a1622]" : "text-gray-400 hover:bg-white/5"}`}
-          >
-            <Mail size={18} /> Contact Inquiries
-          </button>
+          {[
+            {
+              id: "news",
+              label: "News & Media",
+              icon: <Newspaper size={18} />,
+            },
+            { id: "careers", label: "Careers", icon: <Briefcase size={18} /> },
+            {
+              id: "applications",
+              label: "Job Applications",
+              icon: <FileText size={18} />,
+            },
+            {
+              id: "contacts",
+              label: "Contact Inquiries",
+              icon: <Mail size={18} />,
+            },
+            {
+              id: "settings",
+              label: "Account Security",
+              icon: <ShieldCheck size={18} />,
+            },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-4 w-full p-4 rounded-lg text-sm font-bold transition-all ${
+                activeTab === tab.id
+                  ? "bg-[#c5a35d] text-[#0a1622]"
+                  : "text-gray-400 hover:bg-white/5"
+              }`}
+            >
+              {tab.icon} {tab.label}
+            </button>
+          ))}
         </nav>
-
         <div className="p-6 border-t border-white/5">
           <button
             onClick={handleLogout}
@@ -271,313 +377,333 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* Main Workspace */}
       <main className="flex-1 h-full overflow-y-auto p-12 bg-[#f8f9fa]">
-        <header className="flex justify-between items-center mb-12">
-          <div>
-            <h1 className="text-4xl font-serif font-bold text-[#0a1622] mb-2 capitalize">
-              {activeTab === "contacts" ? "Inquiries" : activeTab}
-            </h1>
-            <p className="text-gray-400 text-sm font-medium">
-              Manage the firm's {activeTab} data.
+        {activeTab === "settings" ? (
+          <div className="max-w-2xl bg-white rounded-xl shadow-sm border border-gray-100 p-10">
+            <h2 className="text-3xl font-serif font-bold text-[#0a1622] mb-2">
+              Account Security
+            </h2>
+            <p className="text-gray-400 text-sm mb-10">
+              Update your administrative access credentials.
             </p>
-          </div>
-          {activeTab !== "contacts" && activeTab !== "applications" && (
-            <button
-              onClick={handleOpenCreate}
-              className="bg-[#0a1622] text-white px-8 py-4 rounded-md font-bold text-xs uppercase tracking-widest flex items-center gap-3 hover:bg-[#c5a35d] hover:text-[#0a1622] transition-all shadow-xl"
-            >
-              <Plus size={18} /> Add New {activeTab === "news" ? "Post" : "Job"}
-            </button>
-          )}
-        </header>
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          {loading ? (
-            <div className="p-20 flex justify-center">
-              <Loader2 className="animate-spin text-[#c5a35d]" size={40} />
-            </div>
-          ) : (
-            <table className="w-full">
-              <thead className="bg-gray-50/50 border-b border-gray-100 text-left text-[10px] uppercase tracking-widest font-bold text-gray-400">
-                <tr>
-                  <th className="p-6">
-                    {activeTab === "contacts" || activeTab === "applications"
-                      ? "Sender"
-                      : "Details"}
-                  </th>
-                  <th className="p-6">
-                    {activeTab === "contacts" || activeTab === "applications"
-                      ? "Inquiry / Application Details"
-                      : "Category / Dept"}
-                  </th>
-                  <th className="p-6 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {data.map((item) => (
-                  <tr
-                    key={item._id}
-                    className="hover:bg-gray-50/50 transition-colors group"
+            <form onSubmit={handlePasswordUpdate} className="space-y-6">
+              {/* Current Password */}
+              <div>
+                <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
+                  Current Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPasswords.current ? "text" : "password"}
+                    required
+                    className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                    value={pwdData.currentPassword}
+                    onChange={(e) =>
+                      setPwdData({
+                        ...pwdData,
+                        currentPassword: e.target.value,
+                      })
+                    }
+                  />
+                  <button
+                    type="button"
+                    onClick={() => toggleVisibility("current")}
+                    className="absolute right-4 top-4 text-gray-300 hover:text-[#c5a35d]"
                   >
-                    <td className="p-6">
-                      {activeTab === "contacts" ||
-                      activeTab === "applications" ? (
-                        <div>
+                    {showPasswords.current ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                {/* New Password */}
+                <div className="space-y-2">
+                  <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400">
+                    New Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPasswords.new ? "text" : "password"}
+                      required
+                      className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                      value={pwdData.newPassword}
+                      onChange={(e) =>
+                        setPwdData({ ...pwdData, newPassword: e.target.value })
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() => toggleVisibility("new")}
+                      className="absolute right-4 top-4 text-gray-300 hover:text-[#c5a35d]"
+                    >
+                      {showPasswords.new ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <Eye size={18} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Confirm Password */}
+                <div className="space-y-2">
+                  <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400">
+                    Confirm New
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPasswords.confirm ? "text" : "password"}
+                      required
+                      className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                      value={pwdData.confirmPassword}
+                      onChange={(e) =>
+                        setPwdData({
+                          ...pwdData,
+                          confirmPassword: e.target.value,
+                        })
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() => toggleVisibility("confirm")}
+                      className="absolute right-4 top-4 text-gray-300 hover:text-[#c5a35d]"
+                    >
+                      {showPasswords.confirm ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <Eye size={18} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {pwdData.confirmPassword &&
+                pwdData.newPassword !== pwdData.confirmPassword && (
+                  <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest">
+                    Passwords do not match
+                  </p>
+                )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-[#0a1622] text-white px-10 py-4 rounded-lg font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-[#c5a35d] hover:text-[#0a1622] transition-all disabled:opacity-50"
+              >
+                {loading ? (
+                  <Loader2 className="animate-spin" size={16} />
+                ) : (
+                  "Update Credentials"
+                )}
+              </button>
+            </form>
+          </div>
+        ) : (
+          <>
+            <header className="flex justify-between items-center mb-12">
+              <div>
+                <h1 className="text-4xl font-serif font-bold text-[#0a1622] mb-2 capitalize">
+                  {activeTab}
+                </h1>
+                <p className="text-gray-400 text-sm font-medium">
+                  Manage the firm's data records.
+                </p>
+              </div>
+              {!["contacts", "applications"].includes(activeTab) && (
+                <button
+                  onClick={handleOpenCreate}
+                  className="bg-[#0a1622] text-white px-8 py-4 rounded-md font-bold text-xs uppercase tracking-widest flex items-center gap-3 hover:bg-[#c5a35d] transition-all shadow-xl"
+                >
+                  <Plus size={18} /> Add New
+                </button>
+              )}
+            </header>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              {loading ? (
+                <div className="p-20 flex justify-center">
+                  <Loader2 className="animate-spin text-[#c5a35d]" size={40} />
+                </div>
+              ) : (
+                <table className="w-full">
+                  <thead className="bg-gray-50/50 border-b border-gray-100 text-left text-[10px] uppercase tracking-widest font-bold text-gray-400">
+                    <tr>
+                      <th className="p-6">
+                        {["contacts", "applications"].includes(activeTab)
+                          ? "Sender"
+                          : "Details"}
+                      </th>
+                      <th className="p-6">
+                        {["contacts", "applications"].includes(activeTab)
+                          ? "Context"
+                          : "Category"}
+                      </th>
+                      <th className="p-6 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {data.map((item) => (
+                      <tr
+                        key={item._id}
+                        className="hover:bg-gray-50/50 transition-colors"
+                      >
+                        <td className="p-6">
                           <div className="font-bold text-[#0a1622] text-lg">
-                            {item.fullName}
+                            {item.fullName || item.title}
                           </div>
-                          <div className="text-sm text-[#c5a35d] font-medium">
-                            {item.email}
+                          <div className="text-sm text-[#c5a35d]">
+                            {item.email ||
+                              (activeTab === "careers" ? item.location : "")}
                           </div>
-                          {item.company && (
-                            <div className="flex items-center gap-1 text-[10px] text-gray-400 mt-1 uppercase font-bold">
-                              <Building2 size={12} /> {item.company}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div>
-                          <div className="font-bold text-[#0a1622] mb-1 text-lg">
-                            {item.title}
-                          </div>
-                          <div className="text-sm text-gray-400 line-clamp-2 max-w-xl">
-                            {activeTab === "careers"
-                              ? `${item.location} • ${item.jobType}`
-                              : item.content}
-                          </div>
-                        </div>
-                      )}
-                    </td>
-
-                    <td className="p-6">
-                      {activeTab === "contacts" ? (
-                        <div>
-                          <span className="px-2 py-1 bg-blue-50 text-blue-500 rounded text-[9px] font-black uppercase tracking-tighter mb-2 inline-block border border-blue-100">
-                            {item.inquiryType}
-                          </span>
-                          <p className="text-sm text-gray-500 line-clamp-2 italic">
-                            "{item.message}"
-                          </p>
-                        </div>
-                      ) : activeTab === "applications" ? (
-                        <div>
-                          <span className="px-2 py-1 bg-amber-50 text-amber-600 rounded text-[9px] font-black uppercase tracking-tighter mb-2 inline-block border border-amber-100">
-                            {item.position}
-                          </span>
-                          <p className="text-sm text-gray-500 line-clamp-2 italic">
-                            "{item.message || item.coverLetter}"
-                          </p>
-                        </div>
-                      ) : (
-                        <span className="px-3 py-1 bg-gray-100 rounded-full text-[10px] font-black text-gray-500 uppercase tracking-widest border border-gray-200">
-                          {activeTab === "news"
-                            ? item.category
-                            : item.department}
-                        </span>
-                      )}
-                    </td>
-
-                    <td className="p-6 text-right">
-                      <div className="flex justify-end gap-2">
-                        {activeTab === "applications" && (
-                          <button
-                            onClick={() => openResume(item.resumePath)}
-                            className="bg-amber-50 p-3 rounded-lg text-amber-500 hover:bg-amber-500 hover:text-white transition-all flex items-center gap-2 font-bold text-xs"
-                            title="View Resume"
-                          >
-                            <Eye size={18} />
-                          </button>
-                        )}
-                        {activeTab !== "contacts" &&
-                          activeTab !== "applications" && (
+                        </td>
+                        <td className="p-6 text-sm text-gray-500 italic">
+                          {item.message ||
+                            item.position ||
+                            item.category ||
+                            item.department}
+                        </td>
+                        <td className="p-6 text-right">
+                          <div className="flex justify-end gap-2">
+                            {activeTab === "applications" && (
+                              <button
+                                onClick={() => openResume(item.resumePath)}
+                                className="bg-amber-50 p-3 rounded-lg text-amber-500 hover:bg-amber-500 hover:text-white transition-all"
+                              >
+                                <Eye size={18} />
+                              </button>
+                            )}
+                            {!["contacts", "applications"].includes(
+                              activeTab,
+                            ) && (
+                              <button
+                                onClick={() => handleOpenEdit(item)}
+                                className="bg-blue-50 p-3 rounded-lg text-blue-400 hover:bg-blue-500 hover:text-white transition-all"
+                              >
+                                <Edit3 size={18} />
+                              </button>
+                            )}
                             <button
-                              onClick={() => handleOpenEdit(item)}
-                              className="bg-blue-50 p-3 rounded-lg text-blue-400 hover:bg-blue-500 hover:text-white transition-all"
+                              onClick={() => triggerDelete(item)}
+                              className="bg-red-50 p-3 rounded-lg text-red-400 hover:bg-red-500 hover:text-white transition-all"
                             >
-                              <Edit3 size={18} />
+                              <Trash2 size={18} />
                             </button>
-                          )}
-                        <button
-                          onClick={() => handleDelete(item._id)}
-                          className="bg-red-50 p-3 rounded-lg text-red-400 hover:bg-red-500 hover:text-white transition-all"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </>
+        )}
       </main>
 
-      {/* Main Edit Modal */}
-      {/* Main Edit Modal */}
+      {/* CRUD Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-[#0a1622]/95 backdrop-blur-md flex items-center justify-center p-6 z-[10000]">
-          <div className="bg-white w-full max-w-2xl rounded-xl overflow-hidden shadow-2xl">
+          <div className="bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden">
             <div className="p-8 border-b border-gray-100 flex justify-between items-center">
               <h2 className="text-2xl font-serif font-bold text-[#0a1622]">
-                {editingId ? "Edit" : "Create"}{" "}
-                {activeTab === "news" ? "Post" : "Job"}
+                {editingId ? "Edit" : "Create"} {activeTab}
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-[#0a1622]"
+                className="text-gray-400"
               >
                 <X size={24} />
               </button>
             </div>
-
             <form onSubmit={handleSubmit} className="p-8 space-y-6">
-              <div className="space-y-4">
-                {/* Common Field: Title */}
-                <div>
-                  <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
-                    Title
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
-                    value={formData.title}
+              <div>
+                <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
+                  Title / Subject
+                </label>
+                <input
+                  type="text"
+                  required
+                  className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                  value={formData.title}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
+                />
+              </div>
+              {/* Conditional fields based on activeTab */}
+              {activeTab === "news" ? (
+                <>
+                  <select
+                    className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none"
+                    value={formData.category}
                     onChange={(e) =>
-                      setFormData({ ...formData, title: e.target.value })
+                      setFormData({ ...formData, category: e.target.value })
+                    }
+                  >
+                    <option value="Company News">Company News</option>
+                    <option value="Investments">Investments</option>
+                  </select>
+                  <textarea
+                    required
+                    rows="4"
+                    className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none resize-none"
+                    value={formData.content}
+                    onChange={(e) =>
+                      setFormData({ ...formData, content: e.target.value })
+                    }
+                  />
+                </>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <input
+                      type="text"
+                      placeholder="Location"
+                      className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg"
+                      value={formData.location}
+                      onChange={(e) =>
+                        setFormData({ ...formData, location: e.target.value })
+                      }
+                    />
+                    <input
+                      type="text"
+                      placeholder="Department"
+                      className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg"
+                      value={formData.department}
+                      onChange={(e) =>
+                        setFormData({ ...formData, department: e.target.value })
+                      }
+                    />
+                  </div>
+                  <textarea
+                    required
+                    rows="6"
+                    className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none resize-none"
+                    value={formData.content}
+                    onChange={(e) =>
+                      setFormData({ ...formData, content: e.target.value })
                     }
                   />
                 </div>
-
-                {activeTab === "news" ? (
-                  <>
-                    {/* News Specific: Category */}
-                    <div>
-                      <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
-                        Category
-                      </label>
-                      <select
-                        className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
-                        value={formData.category}
-                        onChange={(e) =>
-                          setFormData({ ...formData, category: e.target.value })
-                        }
-                      >
-                        <option value="Company News">Company News</option>
-                        <option value="Investments">Investments</option>
-                        <option value="Press Release">Press Release</option>
-                      </select>
-                    </div>
-                    {/* News Specific: Content */}
-                    <div>
-                      <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
-                        Content
-                      </label>
-                      <textarea
-                        required
-                        rows="5"
-                        className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d] resize-none"
-                        value={formData.content}
-                        onChange={(e) =>
-                          setFormData({ ...formData, content: e.target.value })
-                        }
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    {/* Careers Specific Fields */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
-                          Location
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="e.g. Addis Ababa"
-                          className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
-                          value={formData.location}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              location: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
-                          Department
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="e.g. Finance"
-                          className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
-                          value={formData.department}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              department: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
-                        Job Type
-                      </label>
-                      <select
-                        className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
-                        value={formData.jobType}
-                        onChange={(e) =>
-                          setFormData({ ...formData, jobType: e.target.value })
-                        }
-                      >
-                        <option value="Full-time">Full-time</option>
-                        <option value="Contract">Contract</option>
-                        <option value="Remote">Remote</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
-                        Job Description
-                      </label>
-                      <textarea
-                        required
-                        rows="4"
-                        className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d] resize-none"
-                        value={formData.content}
-                        onChange={(e) =>
-                          setFormData({ ...formData, content: e.target.value })
-                        }
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-
-              <div className="flex justify-end gap-4 pt-4">
+              )}
+              <div className="flex justify-end gap-4">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-[#0a1622]"
+                  className="px-8 py-4 text-[10px] font-black uppercase text-gray-400"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="bg-[#0a1622] text-white px-10 py-4 rounded-lg font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-[#c5a35d] hover:text-[#0a1622] transition-all disabled:opacity-50 flex items-center gap-2"
+                  className="bg-[#0a1622] text-white px-10 py-4 rounded-lg font-bold text-[10px] uppercase tracking-widest hover:bg-[#c5a35d] transition-all"
                 >
-                  {loading ? (
-                    <Loader2 className="animate-spin" size={16} />
-                  ) : editingId ? (
-                    "Update Item"
-                  ) : (
-                    "Publish Item"
-                  )}
+                  Save Entry
                 </button>
               </div>
             </form>
@@ -585,56 +711,75 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* RESUME VIEWER MODAL WITH IMPROVED DOWNLOAD */}
+      {/* Delete Confirmation */}
+      {confirmModal.show && (
+        <div className="fixed inset-0 z-[10005] bg-[#0a1622]/80 backdrop-blur-sm flex items-center justify-center p-6">
+          <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full p-8 text-center border-t-4 border-red-500">
+            <div className="bg-red-50 text-red-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Trash2 size={30} />
+            </div>
+            <h3 className="text-xl font-serif font-bold text-[#0a1622] mb-2">
+              Delete Permanently?
+            </h3>
+            <p className="text-gray-500 text-sm mb-8 italic">
+              "{confirmModal.title}"
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmModal({ show: false })}
+                className="flex-1 py-3 text-[10px] font-black uppercase text-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={executeDelete}
+                className="flex-1 bg-red-500 text-white py-3 rounded-lg font-bold text-[10px] uppercase tracking-widest"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div
+          className={`fixed bottom-10 right-10 z-[10010] flex items-center gap-4 px-6 py-4 rounded-xl shadow-2xl animate-in slide-in-from-right-10 ${toast.type === "success" ? "bg-[#0a1622] text-white" : "bg-red-600 text-white"}`}
+        >
+          <div className="font-bold text-sm tracking-wide">{toast.message}</div>
+          <button onClick={() => setToast({ ...toast, show: false })}>
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
+      {/* Resume Viewer */}
       {showResumeModal && (
         <div className="fixed inset-0 bg-[#0a1622]/95 backdrop-blur-md flex items-center justify-center p-4 z-[10001]">
           <div className="bg-white w-full max-w-5xl h-[92vh] rounded-xl overflow-hidden shadow-2xl flex flex-col">
-            <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-              <div className="flex items-center gap-3">
-                <div className="bg-[#c5a35d]/10 p-2 rounded-lg text-[#c5a35d]">
-                  <FileText size={20} />
-                </div>
-                <div>
-                  <h2 className="text-lg font-serif font-bold text-[#0a1622] leading-none">
-                    Resume Viewer
-                  </h2>
-                  <p className="text-[10px] text-gray-400 uppercase font-bold tracking-widest mt-1">
-                    Candidate Profile
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                {/* Fixed Download Button: Uses Fetch to prevent redirection */}
+            <div className="p-5 flex justify-between items-center bg-gray-50">
+              <span className="font-serif font-bold text-[#0a1622]">
+                Candidate Resume
+              </span>
+              <div className="flex gap-4">
                 <button
                   onClick={handleDownload}
                   disabled={isDownloading}
-                  className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-[#c5a35d] transition-colors disabled:opacity-50"
+                  className="text-[11px] font-black uppercase text-gray-400 hover:text-[#c5a35d]"
                 >
-                  {isDownloading ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <Download size={16} />
-                  )}
-                  {isDownloading ? "Preparing..." : "Download PDF"}
+                  {isDownloading ? "..." : <Download size={18} />}
                 </button>
-
-                <button
-                  onClick={() => setShowResumeModal(false)}
-                  className="p-2 bg-gray-200 rounded-full text-gray-600 hover:bg-red-500 hover:text-white transition-all"
-                >
+                <button onClick={() => setShowResumeModal(false)}>
                   <X size={20} />
                 </button>
               </div>
             </div>
-
-            <div className="flex-1 bg-gray-700 relative">
-              <iframe
-                src={`${previewResumeUrl}#toolbar=0&navpanes=0`}
-                className="w-full h-full border-none"
-                title="Resume Preview"
-              />
-            </div>
+            <iframe
+              src={`${previewResumeUrl}#toolbar=0`}
+              className="flex-1 w-full"
+              title="Resume"
+            />
           </div>
         </div>
       )}
