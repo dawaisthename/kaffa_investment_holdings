@@ -647,6 +647,8 @@ export default function AdminDashboard() {
                   >
                     <option value="Company News">Company News</option>
                     <option value="Investments">Investments</option>
+                    <option value="Insights">Insights</option>
+                    <option value="Press">Press</option>
                   </select>
                   <textarea
                     required
