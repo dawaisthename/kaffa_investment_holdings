@@ -260,6 +260,7 @@ export default function AdminDashboard() {
             <Mail size={18} /> Contact Inquiries
           </button>
         </nav>
+
         <div className="p-6 border-t border-white/5">
           <button
             onClick={handleLogout}
@@ -414,6 +415,7 @@ export default function AdminDashboard() {
       </main>
 
       {/* Main Edit Modal */}
+      {/* Main Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-[#0a1622]/95 backdrop-blur-md flex items-center justify-center p-6 z-[10000]">
           <div className="bg-white w-full max-w-2xl rounded-xl overflow-hidden shadow-2xl">
@@ -429,7 +431,156 @@ export default function AdminDashboard() {
                 <X size={24} />
               </button>
             </div>
-            {/* Form Fields would go here */}
+
+            <form onSubmit={handleSubmit} className="p-8 space-y-6">
+              <div className="space-y-4">
+                {/* Common Field: Title */}
+                <div>
+                  <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                    value={formData.title}
+                    onChange={(e) =>
+                      setFormData({ ...formData, title: e.target.value })
+                    }
+                  />
+                </div>
+
+                {activeTab === "news" ? (
+                  <>
+                    {/* News Specific: Category */}
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
+                        Category
+                      </label>
+                      <select
+                        className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                        value={formData.category}
+                        onChange={(e) =>
+                          setFormData({ ...formData, category: e.target.value })
+                        }
+                      >
+                        <option value="Company News">Company News</option>
+                        <option value="Investments">Investments</option>
+                        <option value="Press Release">Press Release</option>
+                      </select>
+                    </div>
+                    {/* News Specific: Content */}
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
+                        Content
+                      </label>
+                      <textarea
+                        required
+                        rows="5"
+                        className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d] resize-none"
+                        value={formData.content}
+                        onChange={(e) =>
+                          setFormData({ ...formData, content: e.target.value })
+                        }
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Careers Specific Fields */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
+                          Location
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Addis Ababa"
+                          className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                          value={formData.location}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              location: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
+                          Department
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Finance"
+                          className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                          value={formData.department}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              department: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
+                        Job Type
+                      </label>
+                      <select
+                        className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                        value={formData.jobType}
+                        onChange={(e) =>
+                          setFormData({ ...formData, jobType: e.target.value })
+                        }
+                      >
+                        <option value="Full-time">Full-time</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Remote">Remote</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
+                        Job Description
+                      </label>
+                      <textarea
+                        required
+                        rows="4"
+                        className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d] resize-none"
+                        value={formData.content}
+                        onChange={(e) =>
+                          setFormData({ ...formData, content: e.target.value })
+                        }
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-4 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-[#0a1622]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-[#0a1622] text-white px-10 py-4 rounded-lg font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-[#c5a35d] hover:text-[#0a1622] transition-all disabled:opacity-50 flex items-center gap-2"
+                >
+                  {loading ? (
+                    <Loader2 className="animate-spin" size={16} />
+                  ) : editingId ? (
+                    "Update Item"
+                  ) : (
+                    "Publish Item"
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
