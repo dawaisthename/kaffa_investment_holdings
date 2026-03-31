@@ -15,11 +15,12 @@ import {
   Download,
   EyeOff,
   Eye,
+  Globe,
 } from "lucide-react";
 import client from "../../api/client";
 
 export default function AdminDashboard() {
-  // Authentication & Core State
+  // --- CORE STATE ---
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("kaffa_token"),
   );
@@ -28,18 +29,14 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  // Login Specific States
+  // --- AUTH & SECURITY STATES ---
   const [loginData, setLoginData] = useState({ username: "", password: "" });
   const [loginError, setLoginError] = useState("");
-
-  // Password Update States
   const [pwdData, setPwdData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
-
-  // Toggle Visibility for all password fields
   const [showPasswords, setShowPasswords] = useState({
     login: false,
     current: false,
@@ -47,7 +44,7 @@ export default function AdminDashboard() {
     confirm: false,
   });
 
-  // UI Feedback States
+  // --- UI FEEDBACK & MODALS ---
   const [confirmModal, setConfirmModal] = useState({
     show: false,
     id: null,
@@ -59,20 +56,22 @@ export default function AdminDashboard() {
     type: "success",
   });
   const [editingId, setEditingId] = useState(null);
-
-  // Resume Preview States
   const [showResumeModal, setShowResumeModal] = useState(false);
   const [previewResumeUrl, setPreviewResumeUrl] = useState("");
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // Form Data for News/Careers
+  // --- FORM DATA (Unified for News, Careers, and Portfolio) ---
   const [formData, setFormData] = useState({
     title: "",
-    content: "",
+    content: "", // News/Careers
+    description: "", // Portfolio
     category: "Company News",
     location: "",
     department: "",
     jobType: "Full-time",
+    sector: "Real Estate", // Portfolio
+    region: "East Africa", // Portfolio
+    featured: false, // Portfolio
   });
 
   const toggleVisibility = (field) => {
@@ -92,6 +91,7 @@ export default function AdminDashboard() {
       setData(response.data);
     } catch (err) {
       if (err.response?.status === 401) handleLogout();
+      showToast("Failed to fetch data", "error");
     } finally {
       setLoading(false);
     }
@@ -101,7 +101,7 @@ export default function AdminDashboard() {
     if (isLoggedIn) fetchData();
   }, [isLoggedIn, activeTab]);
 
-  // --- AUTHENTICATION HANDLERS ---
+  // --- HANDLERS ---
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -110,13 +110,9 @@ export default function AdminDashboard() {
       const response = await client.post("/auth/login", loginData);
       localStorage.setItem("kaffa_token", response.data.token);
       setIsLoggedIn(true);
-      showToast("Welcome back, Admin");
+      showToast("Access Granted. Welcome, Admin.");
     } catch (err) {
-      const msg =
-        err.response?.data?.message ||
-        "Login Failed. Please check your credentials.";
-      setLoginError(msg);
-      showToast(msg, "error");
+      setLoginError(err.response?.data?.message || "Invalid Credentials");
     } finally {
       setLoading(false);
     }
@@ -134,33 +130,32 @@ export default function AdminDashboard() {
     }
     setLoading(true);
     try {
-      // Backend expects { currentPassword, newPassword }
       await client.put("/auth/update-password", {
         currentPassword: pwdData.currentPassword,
         newPassword: pwdData.newPassword,
       });
-      showToast("Password updated successfully");
+      showToast("Security credentials updated");
       setPwdData({ currentPassword: "", newPassword: "", confirmPassword: "" });
     } catch (err) {
-      showToast(
-        err.response?.data?.message || "Internal Server Error",
-        "error",
-      );
+      showToast(err.response?.data?.message || "Update failed", "error");
     } finally {
       setLoading(false);
     }
   };
 
-  // --- CRUD HANDLERS ---
   const handleOpenCreate = () => {
     setEditingId(null);
     setFormData({
       title: "",
       content: "",
-      category: activeTab === "news" ? "Company News" : "Investments",
+      description: "",
+      category: activeTab === "news" ? "Company News" : "Management",
       location: "",
       department: "",
       jobType: "Full-time",
+      sector: "Real Estate",
+      region: "East Africa",
+      featured: false,
     });
     setShowModal(true);
   };
@@ -168,12 +163,13 @@ export default function AdminDashboard() {
   const handleOpenEdit = (item) => {
     setEditingId(item._id);
     setFormData({
-      title: item.title,
-      content: item.content,
-      category: item.category,
-      location: item.location || "",
-      department: item.department || "",
-      jobType: item.jobType || "Full-time",
+      ...item,
+      // Ensure fallbacks for fields that might be missing in older docs
+      title: item.title || "",
+      content: item.content || "",
+      description: item.description || "",
+      sector: item.sector || "Real Estate",
+      region: item.region || "East Africa",
     });
     setShowModal(true);
   };
@@ -182,17 +178,22 @@ export default function AdminDashboard() {
     e.preventDefault();
     setLoading(true);
     try {
+      // Clean request body: remove description if sending news, remove content if sending portfolio
+      const payload = { ...formData };
+      if (activeTab === "portfolio") delete payload.content;
+      else delete payload.description;
+
       if (editingId) {
-        await client.put(`/${activeTab}/${editingId}`, formData);
-        showToast("Record updated successfully");
+        await client.put(`/${activeTab}/${editingId}`, payload);
+        showToast("Record updated");
       } else {
-        await client.post(`/${activeTab}`, formData);
-        showToast("New entry published");
+        await client.post(`/${activeTab}`, payload);
+        showToast("Entry published successfully");
       }
       setShowModal(false);
       fetchData();
     } catch (err) {
-      showToast("Operation failed", "error");
+      showToast("Submission error", "error");
     } finally {
       setLoading(false);
     }
@@ -210,20 +211,19 @@ export default function AdminDashboard() {
     setLoading(true);
     try {
       await client.delete(`/${activeTab}/${confirmModal.id}`);
-      showToast("Deleted successfully");
+      showToast("Record deleted");
       fetchData();
     } catch (err) {
-      showToast("Delete failed", "error");
+      showToast("Deletion failed", "error");
     } finally {
       setLoading(false);
       setConfirmModal({ show: false, id: null, title: "" });
     }
   };
 
-  // --- RESUME UTILITIES ---
-  const openResume = (filePath) => {
-    if (!filePath) return showToast("No resume found", "error");
-    const url = `http://localhost:5000/${filePath.replace(/\\/g, "/")}`;
+  const openResume = (path) => {
+    if (!path) return showToast("No file attached", "error");
+    const url = `http://localhost:5000/${path.replace(/\\/g, "/")}`;
     setPreviewResumeUrl(url);
     setShowResumeModal(true);
   };
@@ -233,25 +233,19 @@ export default function AdminDashboard() {
     try {
       const response = await fetch(previewResumeUrl);
       const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
-      link.href = blobUrl;
-      link.setAttribute(
-        "download",
-        previewResumeUrl.split("/").pop() || "resume.pdf",
-      );
-      document.body.appendChild(link);
+      link.href = url;
+      link.download = "Candidate_Resume.pdf";
       link.click();
-      link.remove();
-      window.URL.revokeObjectURL(blobUrl);
-    } catch (error) {
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
       showToast("Download failed", "error");
     } finally {
       setIsDownloading(false);
     }
   };
 
-  // --- RENDER LOGIN VIEW ---
   if (!isLoggedIn) {
     return (
       <div className="fixed inset-0 z-[9999] bg-[#0a1622] flex items-center justify-center p-6">
@@ -297,13 +291,11 @@ export default function AdminDashboard() {
               </button>
             </div>
           </div>
-
           {loginError && (
-            <div className="mt-4 p-3 bg-red-50 border-l-2 border-red-500 text-red-600 text-[10px] font-bold uppercase tracking-wider">
+            <div className="mt-4 p-3 bg-red-50 text-red-600 text-[10px] font-bold uppercase tracking-wider">
               {loginError}
             </div>
           )}
-
           <button
             disabled={loading}
             className="w-full mt-8 bg-[#0a1622] text-white py-4 rounded-md font-bold hover:bg-[#162a3d] transition-all flex justify-center items-center gap-2 tracking-widest text-xs"
@@ -319,10 +311,9 @@ export default function AdminDashboard() {
     );
   }
 
-  // --- RENDER DASHBOARD VIEW ---
   return (
     <div className="fixed inset-0 z-[9998] bg-[#fcfcfc] flex overflow-hidden">
-      {/* Sidebar Navigation */}
+      {/* Sidebar */}
       <aside className="w-72 bg-[#0a1622] text-white flex flex-col shadow-2xl">
         <div className="p-8 border-b border-white/5">
           <span className="text-[#c5a35d] font-bold tracking-[0.3em] text-[10px] uppercase block mb-1">
@@ -337,6 +328,7 @@ export default function AdminDashboard() {
               label: "News & Media",
               icon: <Newspaper size={18} />,
             },
+            { id: "portfolio", label: "Portfolio", icon: <Globe size={18} /> },
             { id: "careers", label: "Careers", icon: <Briefcase size={18} /> },
             {
               id: "applications",
@@ -357,11 +349,7 @@ export default function AdminDashboard() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-4 w-full p-4 rounded-lg text-sm font-bold transition-all ${
-                activeTab === tab.id
-                  ? "bg-[#c5a35d] text-[#0a1622]"
-                  : "text-gray-400 hover:bg-white/5"
-              }`}
+              className={`flex items-center gap-4 w-full p-4 rounded-lg text-sm font-bold transition-all ${activeTab === tab.id ? "bg-[#c5a35d] text-[#0a1622]" : "text-gray-400 hover:bg-white/5"}`}
             >
               {tab.icon} {tab.label}
             </button>
@@ -377,7 +365,7 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      {/* Main Workspace */}
+      {/* Main Area */}
       <main className="flex-1 h-full overflow-y-auto p-12 bg-[#f8f9fa]">
         {activeTab === "settings" ? (
           <div className="max-w-2xl bg-white rounded-xl shadow-sm border border-gray-100 p-10">
@@ -388,7 +376,6 @@ export default function AdminDashboard() {
               Update your administrative access credentials.
             </p>
             <form onSubmit={handlePasswordUpdate} className="space-y-6">
-              {/* Current Password */}
               <div>
                 <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
                   Current Password
@@ -419,9 +406,7 @@ export default function AdminDashboard() {
                   </button>
                 </div>
               </div>
-
               <div className="grid grid-cols-2 gap-6">
-                {/* New Password */}
                 <div className="space-y-2">
                   <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400">
                     New Password
@@ -449,8 +434,6 @@ export default function AdminDashboard() {
                     </button>
                   </div>
                 </div>
-
-                {/* Confirm Password */}
                 <div className="space-y-2">
                   <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400">
                     Confirm New
@@ -482,18 +465,10 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
-
-              {pwdData.confirmPassword &&
-                pwdData.newPassword !== pwdData.confirmPassword && (
-                  <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest">
-                    Passwords do not match
-                  </p>
-                )}
-
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-[#0a1622] text-white px-10 py-4 rounded-lg font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-[#c5a35d] hover:text-[#0a1622] transition-all disabled:opacity-50"
+                className="bg-[#0a1622] text-white px-10 py-4 rounded-lg font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-[#c5a35d] hover:text-[#0a1622] transition-all"
               >
                 {loading ? (
                   <Loader2 className="animate-spin" size={16} />
@@ -534,14 +509,18 @@ export default function AdminDashboard() {
                   <thead className="bg-gray-50/50 border-b border-gray-100 text-left text-[10px] uppercase tracking-widest font-bold text-gray-400">
                     <tr>
                       <th className="p-6">
-                        {["contacts", "applications"].includes(activeTab)
-                          ? "Sender"
-                          : "Details"}
+                        {activeTab === "portfolio"
+                          ? "Asset Details"
+                          : ["contacts", "applications"].includes(activeTab)
+                            ? "Sender"
+                            : "Details"}
                       </th>
                       <th className="p-6">
-                        {["contacts", "applications"].includes(activeTab)
-                          ? "Context"
-                          : "Category"}
+                        {activeTab === "portfolio"
+                          ? "Classification"
+                          : ["contacts", "applications"].includes(activeTab)
+                            ? "Context"
+                            : "Category"}
                       </th>
                       <th className="p-6 text-right">Actions</th>
                     </tr>
@@ -554,18 +533,21 @@ export default function AdminDashboard() {
                       >
                         <td className="p-6">
                           <div className="font-bold text-[#0a1622] text-lg">
-                            {item.fullName || item.title}
+                            {item.title || item.fullName}
                           </div>
                           <div className="text-sm text-[#c5a35d]">
                             {item.email ||
-                              (activeTab === "careers" ? item.location : "")}
+                              item.location ||
+                              (activeTab === "portfolio" && item.region)}
                           </div>
                         </td>
                         <td className="p-6 text-sm text-gray-500 italic">
-                          {item.message ||
-                            item.position ||
-                            item.category ||
-                            item.department}
+                          {activeTab === "portfolio"
+                            ? item.sector
+                            : item.message ||
+                              item.position ||
+                              item.category ||
+                              item.department}
                         </td>
                         <td className="p-6 text-right">
                           <div className="flex justify-end gap-2">
@@ -605,7 +587,7 @@ export default function AdminDashboard() {
         )}
       </main>
 
-      {/* CRUD Modal */}
+      {/* CRUD MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-[#0a1622]/95 backdrop-blur-md flex items-center justify-center p-6 z-[10000]">
           <div className="bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden">
@@ -623,7 +605,7 @@ export default function AdminDashboard() {
             <form onSubmit={handleSubmit} className="p-8 space-y-6">
               <div>
                 <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
-                  Title / Subject
+                  Title / Asset Name
                 </label>
                 <input
                   type="text"
@@ -635,64 +617,119 @@ export default function AdminDashboard() {
                   }
                 />
               </div>
-              {/* Conditional fields based on activeTab */}
-              {activeTab === "news" ? (
+
+              {activeTab === "portfolio" && (
                 <>
-                  <select
-                    className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none"
-                    value={formData.category}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
+                        Sector
+                      </label>
+                      <select
+                        className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none"
+                        value={formData.sector}
+                        onChange={(e) =>
+                          setFormData({ ...formData, sector: e.target.value })
+                        }
+                      >
+                        {[
+                          "Real Estate",
+                          "Technology",
+                          "Logistics",
+                          "Agriculture",
+                          "Financial Services",
+                          "Energy",
+                        ].map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
+                        Region
+                      </label>
+                      <select
+                        className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none"
+                        value={formData.region}
+                        onChange={(e) =>
+                          setFormData({ ...formData, region: e.target.value })
+                        }
+                      >
+                        {["East Africa", "Middle East", "Southeast Asia"].map(
+                          (r) => (
+                            <option key={r} value={r}>
+                              {r}
+                            </option>
+                          ),
+                        )}
+                      </select>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {activeTab === "news" && (
+                <select
+                  className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none"
+                  value={formData.category}
+                  onChange={(e) =>
+                    setFormData({ ...formData, category: e.target.value })
+                  }
+                >
+                  <option value="Company News">Company News</option>
+                  <option value="Investments">Investments</option>
+                  <option value="Insights">Insights</option>
+                </select>
+              )}
+
+              {activeTab === "careers" && (
+                <div className="grid grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Location"
+                    className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg"
+                    value={formData.location}
                     onChange={(e) =>
-                      setFormData({ ...formData, category: e.target.value })
-                    }
-                  >
-                    <option value="Company News">Company News</option>
-                    <option value="Investments">Investments</option>
-                    <option value="Insights">Insights</option>
-                    <option value="Press">Press</option>
-                  </select>
-                  <textarea
-                    required
-                    rows="4"
-                    className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none resize-none"
-                    value={formData.content}
-                    onChange={(e) =>
-                      setFormData({ ...formData, content: e.target.value })
+                      setFormData({ ...formData, location: e.target.value })
                     }
                   />
-                </>
-              ) : (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <input
-                      type="text"
-                      placeholder="Location"
-                      className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg"
-                      value={formData.location}
-                      onChange={(e) =>
-                        setFormData({ ...formData, location: e.target.value })
-                      }
-                    />
-                    <input
-                      type="text"
-                      placeholder="Department"
-                      className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg"
-                      value={formData.department}
-                      onChange={(e) =>
-                        setFormData({ ...formData, department: e.target.value })
-                      }
-                    />
-                  </div>
-                  <textarea
-                    required
-                    rows="6"
-                    className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none resize-none"
-                    value={formData.content}
+                  <input
+                    type="text"
+                    placeholder="Department"
+                    className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg"
+                    value={formData.department}
                     onChange={(e) =>
-                      setFormData({ ...formData, content: e.target.value })
+                      setFormData({ ...formData, department: e.target.value })
                     }
                   />
                 </div>
               )}
+
+              <div>
+                <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
+                  {activeTab === "portfolio" ? "Description" : "Content"}
+                </label>
+                <textarea
+                  required
+                  rows="5"
+                  className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none resize-none"
+                  value={
+                    activeTab === "portfolio"
+                      ? formData.description
+                      : formData.content
+                  }
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      [activeTab === "portfolio" ? "description" : "content"]:
+                        e.target.value,
+                    })
+                  }
+                />
+              </div>
+
               <div className="flex justify-end gap-4">
                 <button
                   type="button"
@@ -713,15 +750,13 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Delete Confirmation */}
+      {/* DELETE CONFIRMATION MODAL */}
       {confirmModal.show && (
         <div className="fixed inset-0 z-[10005] bg-[#0a1622]/80 backdrop-blur-sm flex items-center justify-center p-6">
           <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full p-8 text-center border-t-4 border-red-500">
-            <div className="bg-red-50 text-red-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Trash2 size={30} />
-            </div>
+            <Trash2 className="mx-auto mb-6 text-red-500" size={50} />
             <h3 className="text-xl font-serif font-bold text-[#0a1622] mb-2">
-              Delete Permanently?
+              Confirm Delete?
             </h3>
             <p className="text-gray-500 text-sm mb-8 italic">
               "{confirmModal.title}"
@@ -744,35 +779,30 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Toast Notification */}
-      {toast.show && (
-        <div
-          className={`fixed bottom-10 right-10 z-[10010] flex items-center gap-4 px-6 py-4 rounded-xl shadow-2xl animate-in slide-in-from-right-10 ${toast.type === "success" ? "bg-[#0a1622] text-white" : "bg-red-600 text-white"}`}
-        >
-          <div className="font-bold text-sm tracking-wide">{toast.message}</div>
-          <button onClick={() => setToast({ ...toast, show: false })}>
-            <X size={14} />
-          </button>
-        </div>
-      )}
-
-      {/* Resume Viewer */}
+      {/* RESUME PREVIEW MODAL */}
       {showResumeModal && (
         <div className="fixed inset-0 bg-[#0a1622]/95 backdrop-blur-md flex items-center justify-center p-4 z-[10001]">
-          <div className="bg-white w-full max-w-5xl h-[92vh] rounded-xl overflow-hidden shadow-2xl flex flex-col">
-            <div className="p-5 flex justify-between items-center bg-gray-50">
+          <div className="bg-white w-full max-w-5xl h-[90vh] rounded-xl overflow-hidden flex flex-col shadow-2xl">
+            <div className="p-5 flex justify-between items-center bg-gray-50 border-b">
               <span className="font-serif font-bold text-[#0a1622]">
-                Candidate Resume
+                Document Preview
               </span>
               <div className="flex gap-4">
                 <button
                   onClick={handleDownload}
                   disabled={isDownloading}
-                  className="text-[11px] font-black uppercase text-gray-400 hover:text-[#c5a35d]"
+                  className="text-gray-400 hover:text-[#c5a35d]"
                 >
-                  {isDownloading ? "..." : <Download size={18} />}
+                  {isDownloading ? (
+                    <Loader2 className="animate-spin" size={18} />
+                  ) : (
+                    <Download size={18} />
+                  )}
                 </button>
-                <button onClick={() => setShowResumeModal(false)}>
+                <button
+                  onClick={() => setShowResumeModal(false)}
+                  className="text-gray-400"
+                >
                   <X size={20} />
                 </button>
               </div>
@@ -780,9 +810,17 @@ export default function AdminDashboard() {
             <iframe
               src={`${previewResumeUrl}#toolbar=0`}
               className="flex-1 w-full"
-              title="Resume"
             />
           </div>
+        </div>
+      )}
+
+      {/* TOAST NOTIFICATION */}
+      {toast.show && (
+        <div
+          className={`fixed bottom-10 right-10 z-[10010] flex items-center gap-4 px-6 py-4 rounded-xl shadow-2xl ${toast.type === "success" ? "bg-[#0a1622] text-white" : "bg-red-600 text-white"}`}
+        >
+          <span className="font-bold text-sm">{toast.message}</span>
         </div>
       )}
     </div>
