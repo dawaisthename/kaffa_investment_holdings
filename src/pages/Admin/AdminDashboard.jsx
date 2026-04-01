@@ -16,6 +16,8 @@ import {
   EyeOff,
   Eye,
   Globe,
+  Users,
+  Camera,
 } from "lucide-react";
 import client from "../../api/client";
 
@@ -60,18 +62,26 @@ export default function AdminDashboard() {
   const [previewResumeUrl, setPreviewResumeUrl] = useState("");
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // --- FORM DATA (Unified for News, Careers, and Portfolio) ---
+  // --- NEW: FILE STATE FOR TEAM IMAGES ---
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  // --- FORM DATA (Unified for News, Careers, Portfolio, and TEAM) ---
   const [formData, setFormData] = useState({
     title: "",
-    content: "", // News/Careers
-    description: "", // Portfolio
+    content: "",
+    description: "",
     category: "Company News",
     location: "",
-    department: "",
+    department: "General",
     jobType: "Full-time",
-    sector: "Real Estate", // Portfolio
-    region: "East Africa", // Portfolio
-    featured: false, // Portfolio
+    sector: "Real Estate",
+    region: "East Africa",
+    featured: false,
+    // Team Specific Fields
+    fullName: "",
+    roleTitle: "",
+    yearsExperience: 0,
+    biography: "",
   });
 
   const toggleVisibility = (field) => {
@@ -145,31 +155,41 @@ export default function AdminDashboard() {
 
   const handleOpenCreate = () => {
     setEditingId(null);
+    setSelectedFile(null);
     setFormData({
       title: "",
       content: "",
       description: "",
       category: activeTab === "news" ? "Company News" : "Management",
       location: "",
-      department: "",
+      department: "General",
       jobType: "Full-time",
       sector: "Real Estate",
       region: "East Africa",
       featured: false,
+      fullName: "",
+      roleTitle: "",
+      yearsExperience: 0,
+      biography: "",
     });
     setShowModal(true);
   };
 
   const handleOpenEdit = (item) => {
     setEditingId(item._id);
+    setSelectedFile(null);
     setFormData({
       ...item,
-      // Ensure fallbacks for fields that might be missing in older docs
       title: item.title || "",
       content: item.content || "",
       description: item.description || "",
       sector: item.sector || "Real Estate",
       region: item.region || "East Africa",
+      fullName: item.fullName || "",
+      roleTitle: item.roleTitle || "",
+      yearsExperience: item.yearsExperience || 0,
+      biography: item.biography || "",
+      department: item.department || "General",
     });
     setShowModal(true);
   };
@@ -178,22 +198,39 @@ export default function AdminDashboard() {
     e.preventDefault();
     setLoading(true);
     try {
-      // Clean request body: remove description if sending news, remove content if sending portfolio
-      const payload = { ...formData };
-      if (activeTab === "portfolio") delete payload.content;
-      else delete payload.description;
+      let payload;
+      let config = {};
+
+      if (activeTab === "team") {
+        // Use FormData for Team Image Upload
+        payload = new FormData();
+        payload.append("fullName", formData.fullName);
+        payload.append("roleTitle", formData.roleTitle);
+        payload.append("yearsExperience", formData.yearsExperience);
+        payload.append("biography", formData.biography);
+        payload.append("department", formData.department);
+        if (selectedFile) {
+          payload.append("profileImage", selectedFile);
+        }
+        config = { headers: { "Content-Type": "multipart/form-data" } };
+      } else {
+        // Normal JSON payload for other tabs
+        payload = { ...formData };
+        if (activeTab === "portfolio") delete payload.content;
+        else delete payload.description;
+      }
 
       if (editingId) {
-        await client.put(`/${activeTab}/${editingId}`, payload);
+        await client.put(`/${activeTab}/${editingId}`, payload, config);
         showToast("Record updated");
       } else {
-        await client.post(`/${activeTab}`, payload);
+        await client.post(`/${activeTab}`, payload, config);
         showToast("Entry published successfully");
       }
       setShowModal(false);
       fetchData();
     } catch (err) {
-      showToast("Submission error", "error");
+      showToast(err.response?.data?.message || "Submission error", "error");
     } finally {
       setLoading(false);
     }
@@ -329,6 +366,7 @@ export default function AdminDashboard() {
               icon: <Newspaper size={18} />,
             },
             { id: "portfolio", label: "Portfolio", icon: <Globe size={18} /> },
+            { id: "team", label: "Leadership Team", icon: <Users size={18} /> },
             { id: "careers", label: "Careers", icon: <Briefcase size={18} /> },
             {
               id: "applications",
@@ -483,7 +521,7 @@ export default function AdminDashboard() {
             <header className="flex justify-between items-center mb-12">
               <div>
                 <h1 className="text-4xl font-serif font-bold text-[#0a1622] mb-2 capitalize">
-                  {activeTab}
+                  {activeTab === "team" ? "Leadership Team" : activeTab}
                 </h1>
                 <p className="text-gray-400 text-sm font-medium">
                   Manage the firm's data records.
@@ -511,16 +549,20 @@ export default function AdminDashboard() {
                       <th className="p-6">
                         {activeTab === "portfolio"
                           ? "Asset Details"
-                          : ["contacts", "applications"].includes(activeTab)
-                            ? "Sender"
-                            : "Details"}
+                          : activeTab === "team"
+                            ? "Member Name"
+                            : ["contacts", "applications"].includes(activeTab)
+                              ? "Sender"
+                              : "Details"}
                       </th>
                       <th className="p-6">
                         {activeTab === "portfolio"
                           ? "Classification"
-                          : ["contacts", "applications"].includes(activeTab)
-                            ? "Context"
-                            : "Category"}
+                          : activeTab === "team"
+                            ? "Role / Title"
+                            : ["contacts", "applications"].includes(activeTab)
+                              ? "Context"
+                              : "Category"}
                       </th>
                       <th className="p-6 text-right">Actions</th>
                     </tr>
@@ -533,21 +575,24 @@ export default function AdminDashboard() {
                       >
                         <td className="p-6">
                           <div className="font-bold text-[#0a1622] text-lg">
-                            {item.title || item.fullName}
+                            {item.fullName || item.title}
                           </div>
                           <div className="text-sm text-[#c5a35d]">
                             {item.email ||
                               item.location ||
-                              (activeTab === "portfolio" && item.region)}
+                              (activeTab === "portfolio" && item.region) ||
+                              (activeTab === "team" && item.department)}
                           </div>
                         </td>
                         <td className="p-6 text-sm text-gray-500 italic">
                           {activeTab === "portfolio"
                             ? item.sector
-                            : item.message ||
-                              item.position ||
-                              item.category ||
-                              item.department}
+                            : activeTab === "team"
+                              ? item.roleTitle
+                              : item.message ||
+                                item.position ||
+                                item.category ||
+                                item.department}
                         </td>
                         <td className="p-6 text-right">
                           <div className="flex justify-end gap-2">
@@ -590,34 +635,103 @@ export default function AdminDashboard() {
       {/* CRUD MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-[#0a1622]/95 backdrop-blur-md flex items-center justify-center p-6 z-[10000]">
-          <div className="bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden">
-            <div className="p-8 border-b border-gray-100 flex justify-between items-center">
+          <div className="bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+            <div className="p-8 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
               <h2 className="text-2xl font-serif font-bold text-[#0a1622]">
-                {editingId ? "Edit" : "Create"} {activeTab}
+                {editingId ? "Edit" : "Create"}{" "}
+                {activeTab === "team" ? "Member" : activeTab}
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-gray-400"
+                className="text-gray-400 hover:text-red-500"
               >
                 <X size={24} />
               </button>
             </div>
             <form onSubmit={handleSubmit} className="p-8 space-y-6">
-              <div>
-                <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
-                  Title / Asset Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                />
-              </div>
+              {/* --- SHARED TITLE / NAME FIELD --- */}
+              {activeTab !== "team" ? (
+                <div>
+                  <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
+                    Title / Asset Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                    value={formData.title}
+                    onChange={(e) =>
+                      setFormData({ ...formData, title: e.target.value })
+                    }
+                  />
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-gray-400 mb-2">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                      value={formData.fullName}
+                      onChange={(e) =>
+                        setFormData({ ...formData, fullName: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-gray-400 mb-2">
+                      Role Title
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                      value={formData.roleTitle}
+                      onChange={(e) =>
+                        setFormData({ ...formData, roleTitle: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+                </div>
+              )}
 
+              {/* --- TEAM SPECIFIC PHOTO & EXPERIENCE --- */}
+              {activeTab === "team" && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-gray-400 mb-2">
+                      Experience (Years)
+                    </label>
+                    <input
+                      type="number"
+                      className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none"
+                      value={formData.yearsExperience}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          yearsExperience: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-gray-400 mb-2 flex items-center gap-2">
+                      <Camera size={14} /> Profile Image
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="w-full p-3 bg-gray-50 border border-gray-100 rounded-lg text-xs"
+                      onChange={(e) => setSelectedFile(e.target.files[0])}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* --- PORTFOLIO SPECIFIC --- */}
               {activeTab === "portfolio" && (
                 <>
                   <div className="grid grid-cols-2 gap-4">
@@ -684,17 +798,19 @@ export default function AdminDashboard() {
                 </select>
               )}
 
-              {activeTab === "careers" && (
+              {(activeTab === "careers" || activeTab === "team") && (
                 <div className="grid grid-cols-2 gap-4">
-                  <input
-                    type="text"
-                    placeholder="Location"
-                    className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg"
-                    value={formData.location}
-                    onChange={(e) =>
-                      setFormData({ ...formData, location: e.target.value })
-                    }
-                  />
+                  {activeTab === "careers" && (
+                    <input
+                      type="text"
+                      placeholder="Location"
+                      className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg"
+                      value={formData.location}
+                      onChange={(e) =>
+                        setFormData({ ...formData, location: e.target.value })
+                      }
+                    />
+                  )}
                   <input
                     type="text"
                     placeholder="Department"
@@ -707,9 +823,14 @@ export default function AdminDashboard() {
                 </div>
               )}
 
+              {/* --- CONTENT / BIO --- */}
               <div>
                 <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
-                  {activeTab === "portfolio" ? "Description" : "Content"}
+                  {activeTab === "portfolio"
+                    ? "Description"
+                    : activeTab === "team"
+                      ? "Biography"
+                      : "Content"}
                 </label>
                 <textarea
                   required
@@ -718,13 +839,18 @@ export default function AdminDashboard() {
                   value={
                     activeTab === "portfolio"
                       ? formData.description
-                      : formData.content
+                      : activeTab === "team"
+                        ? formData.biography
+                        : formData.content
                   }
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      [activeTab === "portfolio" ? "description" : "content"]:
-                        e.target.value,
+                      [activeTab === "portfolio"
+                        ? "description"
+                        : activeTab === "team"
+                          ? "biography"
+                          : "content"]: e.target.value,
                     })
                   }
                 />
