@@ -34,6 +34,14 @@ export default function AdminDashboard() {
   // --- AUTH & SECURITY STATES ---
   const [loginData, setLoginData] = useState({ username: "", password: "" });
   const [loginError, setLoginError] = useState("");
+  const [forgotData, setForgotData] = useState({ username: "" });
+  const [resetData, setResetData] = useState({
+    username: "",
+    token: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [authMode, setAuthMode] = useState("login");
   const [pwdData, setPwdData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -111,6 +119,20 @@ export default function AdminDashboard() {
     if (isLoggedIn) fetchData();
   }, [isLoggedIn, activeTab]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("resetToken");
+    const username = params.get("username");
+    if (token) {
+      setAuthMode("reset");
+      setResetData((prev) => ({
+        ...prev,
+        token,
+        username: username || prev.username,
+      }));
+    }
+  }, []);
+
   // --- HANDLERS ---
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -131,6 +153,56 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     localStorage.removeItem("kaffa_token");
     setIsLoggedIn(false);
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setLoginError("");
+    try {
+      const response = await client.post("/auth/forgot-password", {
+        username: forgotData.username,
+      });
+      showToast(response.data?.message || "Reset email sent");
+      setAuthMode("reset");
+      setResetData((prev) => ({
+        ...prev,
+        username: forgotData.username || prev.username,
+      }));
+    } catch (err) {
+      setLoginError(err.response?.data?.message || "Failed to send reset email");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    if (resetData.newPassword !== resetData.confirmPassword) {
+      setLoginError("New passwords do not match");
+      return;
+    }
+    setLoading(true);
+    setLoginError("");
+    try {
+      const response = await client.post("/auth/reset-password", {
+        username: resetData.username,
+        token: resetData.token,
+        newPassword: resetData.newPassword,
+      });
+      showToast(response.data?.message || "Password reset successful");
+      setAuthMode("login");
+      setResetData({
+        username: "",
+        token: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (err) {
+      setLoginError(err.response?.data?.message || "Password reset failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePasswordUpdate = async (e) => {
@@ -287,46 +359,111 @@ export default function AdminDashboard() {
     return (
       <div className="fixed inset-0 z-[9999] bg-[#0a1622] flex items-center justify-center p-6">
         <form
-          onSubmit={handleLogin}
+          onSubmit={
+            authMode === "login"
+              ? handleLogin
+              : authMode === "forgot"
+                ? handleForgotPassword
+                : handleResetPassword
+          }
           className="bg-white p-10 rounded-xl shadow-2xl w-full max-w-md border-t-4 border-[#c5a35d]"
         >
           <div className="flex justify-center mb-6 text-[#c5a35d] bg-[#fcf8ef] p-4 rounded-full w-fit mx-auto">
             <ShieldCheck size={40} />
           </div>
           <h2 className="text-2xl font-serif font-bold mb-8 text-[#0a1622] text-center uppercase tracking-widest">
-            Kaffa Admin
+            {authMode === "login"
+              ? "Kaffa Admin"
+              : authMode === "forgot"
+                ? "Forgot Password"
+                : "Reset Password"}
           </h2>
           <div className="space-y-4">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Username"
-                required
-                className="w-full p-4 pl-12 bg-gray-50 border border-gray-100 rounded-md outline-none focus:border-[#c5a35d]"
-                onChange={(e) =>
-                  setLoginData({ ...loginData, username: e.target.value })
-                }
-              />
-              <User className="absolute left-4 top-4 text-gray-300" size={20} />
-            </div>
-            <div className="relative">
-              <input
-                type={showPasswords.login ? "text" : "password"}
-                placeholder="Password"
-                required
-                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-md outline-none focus:border-[#c5a35d] pr-12"
-                onChange={(e) =>
-                  setLoginData({ ...loginData, password: e.target.value })
-                }
-              />
-              <button
-                type="button"
-                onClick={() => toggleVisibility("login")}
-                className="absolute right-4 top-4 text-gray-300 hover:text-[#c5a35d]"
-              >
-                {showPasswords.login ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            </div>
+            {(authMode === "login" || authMode === "forgot" || authMode === "reset") && (
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Username"
+                  required
+                  value={
+                    authMode === "login"
+                      ? loginData.username
+                      : authMode === "forgot"
+                        ? forgotData.username
+                        : resetData.username
+                  }
+                  className="w-full p-4 pl-12 bg-gray-50 border border-gray-100 rounded-md outline-none focus:border-[#c5a35d]"
+                  onChange={(e) => {
+                    if (authMode === "login") {
+                      setLoginData({ ...loginData, username: e.target.value });
+                    } else if (authMode === "forgot") {
+                      setForgotData({ username: e.target.value });
+                    } else {
+                      setResetData({ ...resetData, username: e.target.value });
+                    }
+                  }}
+                />
+                <User className="absolute left-4 top-4 text-gray-300" size={20} />
+              </div>
+            )}
+            {authMode === "login" && (
+              <div className="relative">
+                <input
+                  type={showPasswords.login ? "text" : "password"}
+                  placeholder="Password"
+                  required
+                  value={loginData.password}
+                  className="w-full p-4 bg-gray-50 border border-gray-100 rounded-md outline-none focus:border-[#c5a35d] pr-12"
+                  onChange={(e) =>
+                    setLoginData({ ...loginData, password: e.target.value })
+                  }
+                />
+                <button
+                  type="button"
+                  onClick={() => toggleVisibility("login")}
+                  className="absolute right-4 top-4 text-gray-300 hover:text-[#c5a35d]"
+                >
+                  {showPasswords.login ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            )}
+            {authMode === "reset" && (
+              <>
+                <input
+                  type="text"
+                  placeholder="Reset token"
+                  required
+                  value={resetData.token}
+                  className="w-full p-4 bg-gray-50 border border-gray-100 rounded-md outline-none focus:border-[#c5a35d]"
+                  onChange={(e) =>
+                    setResetData({ ...resetData, token: e.target.value })
+                  }
+                />
+                <input
+                  type="password"
+                  placeholder="New password"
+                  required
+                  value={resetData.newPassword}
+                  className="w-full p-4 bg-gray-50 border border-gray-100 rounded-md outline-none focus:border-[#c5a35d]"
+                  onChange={(e) =>
+                    setResetData({ ...resetData, newPassword: e.target.value })
+                  }
+                />
+                <input
+                  type="password"
+                  placeholder="Confirm new password"
+                  required
+                  value={resetData.confirmPassword}
+                  className="w-full p-4 bg-gray-50 border border-gray-100 rounded-md outline-none focus:border-[#c5a35d]"
+                  onChange={(e) =>
+                    setResetData({
+                      ...resetData,
+                      confirmPassword: e.target.value,
+                    })
+                  }
+                />
+              </>
+            )}
           </div>
           {loginError && (
             <div className="mt-4 p-3 bg-red-50 text-red-600 text-[10px] font-bold uppercase tracking-wider">
@@ -340,9 +477,46 @@ export default function AdminDashboard() {
             {loading ? (
               <Loader2 className="animate-spin" size={18} />
             ) : (
-              "SECURE LOGIN"
+              authMode === "login"
+                ? "SECURE LOGIN"
+                : authMode === "forgot"
+                  ? "SEND RESET LINK"
+                  : "RESET PASSWORD"
             )}
           </button>
+          <div className="mt-5 text-center text-xs">
+            {authMode === "login" ? (
+              <button
+                type="button"
+                className="text-[#0a1622] hover:text-[#c5a35d] font-bold uppercase tracking-wider"
+                onClick={() => {
+                  setAuthMode("forgot");
+                  setLoginError("");
+                }}
+              >
+                Forgot password?
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="text-[#0a1622] hover:text-[#c5a35d] font-bold uppercase tracking-wider"
+                onClick={() => {
+                  setAuthMode("login");
+                  setLoginError("");
+                }}
+              >
+                Back to login
+              </button>
+            )}
+          </div>
+          <div className="mt-4 text-center text-xs">
+            <a
+              href="/"
+              className="text-gray-500 hover:text-[#c5a35d] font-bold uppercase tracking-wider"
+            >
+              Back to main site
+            </a>
+          </div>
         </form>
       </div>
     );
