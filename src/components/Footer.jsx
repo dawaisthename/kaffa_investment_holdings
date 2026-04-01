@@ -1,8 +1,46 @@
 import { Link } from "react-router-dom";
-import { Linkedin, Twitter, Mail, MapPin, Phone } from "lucide-react";
+import React, { useState, useEffect } from "react";
+
+import {
+  Linkedin,
+  Twitter,
+  Mail,
+  MapPin,
+  Phone,
+  Loader2,
+  Building2,
+} from "lucide-react";
+import client from "../api/client"; // Ensure this path is correct
 import logo from "../assets/Logo/kaffa_logo.png"; // Assuming you have a logo image in this path
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+
+  const [offices, setOffices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOffices = async () => {
+      try {
+        // Matches the "contacts_info" tab ID from your dashboard
+        const response = await client.get("/contactInfo/footer");
+        setOffices(response.data);
+      } catch (err) {
+        console.error("Failed to fetch office locations:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOffices();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="py-28 flex justify-center items-center">
+        <Loader2 className="animate-spin text-[#c5a35d]" size={40} />
+      </div>
+    );
+  }
 
   return (
     <footer className="bg-[#07111a] text-white pt-20 pb-10 px-8 md:px-16 border-t border-white/5">
@@ -65,18 +103,18 @@ export default function Footer() {
             <div className="flex items-start gap-3 text-gray-400 text-[14px]">
               <MapPin size={18} className="text-[#c5a35d]  shrink-0" />
               <span>
-                123 Business Avenue, Financial District,
-                <br />
-                Addis Ababa, Ethiopia
+                {offices[0]?.addressLine}, {offices[0]?.city},{" "}
+                {offices[0]?.country} {offices[0]?.zipCode}
               </span>
             </div>
             <div className="flex items-center gap-3 text-gray-400 text-[14px]">
               <Phone size={18} className="text-[#c5a35d] shrink-0" />
-              <span>+971 4 000 0000</span>
+              <span>+{offices[0]?.phone}</span>
             </div>
             <div className="flex items-center gap-3 text-gray-400 text-[14px]">
               <Mail size={18} className="text-[#c5a35d] shrink-0" />
-              <span>info@kaffaholding.com</span>
+              {console.log("Offices data in footer:", offices)}
+              <span>{offices[0]?.email}</span>
             </div>
           </div>
         </div>

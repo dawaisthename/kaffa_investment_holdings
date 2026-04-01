@@ -10,7 +10,7 @@ export default function OfficeLocations() {
     const fetchOffices = async () => {
       try {
         // Matches the "contacts_info" tab ID from your dashboard
-        const response = await client.get("/contacts_info");
+        const response = await client.get("/contactInfo");
         setOffices(response.data);
       } catch (err) {
         console.error("Failed to fetch office locations:", err);

@@ -113,6 +113,9 @@ export default function AdminDashboard() {
     if (activeTab === "settings") return;
     setLoading(true);
     try {
+      {
+        console.log(`Fetching data for: ${activeTab}`);
+      }
       const response = await client.get(`/${activeTab}`);
       setData(response.data);
     } catch (err) {
@@ -906,7 +909,7 @@ export default function AdminDashboard() {
             </div>
             <form onSubmit={handleSubmit} className="p-8 space-y-6">
               {/* --- SHARED TITLE / NAME FIELD --- */}
-              {activeTab !== "team" ? (
+              {activeTab !== "team" && activeTab !== "contactInfo" && (
                 <div>
                   <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
                     Title / Asset Name
@@ -921,7 +924,9 @@ export default function AdminDashboard() {
                     }
                   />
                 </div>
-              ) : (
+              )}
+
+              {activeTab === "team" && (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[10px] uppercase font-bold text-gray-400 mb-2">
@@ -1177,35 +1182,39 @@ export default function AdminDashboard() {
 
               {/* --- CONTENT / BIO --- */}
               <div>
-                <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
-                  {activeTab === "portfolio"
-                    ? "Description"
-                    : activeTab === "team"
-                      ? "Biography"
-                      : "Content"}
-                </label>
-                <textarea
-                  required
-                  rows="5"
-                  className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none resize-none"
-                  value={
-                    activeTab === "portfolio"
-                      ? formData.description
+                {activeTab !== "contactInfo" && (
+                  <label className="block text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-2">
+                    {activeTab === "portfolio"
+                      ? "Description"
                       : activeTab === "team"
-                        ? formData.biography
-                        : formData.content
-                  }
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      [activeTab === "portfolio"
-                        ? "description"
+                        ? "Biography"
+                        : "Content"}
+                  </label>
+                )}
+                {activeTab !== "contactInfo" && (
+                  <textarea
+                    required
+                    rows="5"
+                    className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none resize-none"
+                    value={
+                      activeTab === "portfolio"
+                        ? formData.description
                         : activeTab === "team"
-                          ? "biography"
-                          : "content"]: e.target.value,
-                    })
-                  }
-                />
+                          ? formData.biography
+                          : formData.content
+                    }
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        [activeTab === "portfolio"
+                          ? "description"
+                          : activeTab === "team"
+                            ? "biography"
+                            : "content"]: e.target.value,
+                      })
+                    }
+                  />
+                )}
               </div>
 
               <div className="flex justify-end gap-4">
