@@ -18,6 +18,7 @@ import {
   Globe,
   Users,
   Camera,
+  Phone,
 } from "lucide-react";
 import client from "../../api/client";
 
@@ -90,6 +91,13 @@ export default function AdminDashboard() {
     roleTitle: "",
     yearsExperience: 0,
     biography: "",
+    //Contact information
+    city: "",
+    country: "",
+    addressLine: "",
+    zipCode: "",
+    phone: "",
+    email: "",
   });
 
   const toggleVisibility = (field) => {
@@ -170,7 +178,9 @@ export default function AdminDashboard() {
         username: forgotData.username || prev.username,
       }));
     } catch (err) {
-      setLoginError(err.response?.data?.message || "Failed to send reset email");
+      setLoginError(
+        err.response?.data?.message || "Failed to send reset email",
+      );
     } finally {
       setLoading(false);
     }
@@ -243,6 +253,13 @@ export default function AdminDashboard() {
       roleTitle: "",
       yearsExperience: 0,
       biography: "",
+      //contact information
+      city: "",
+      country: "",
+      addressLine: "",
+      zipCode: "",
+      phone: "",
+      email: "",
     });
     setShowModal(true);
   };
@@ -262,6 +279,12 @@ export default function AdminDashboard() {
       yearsExperience: item.yearsExperience || 0,
       biography: item.biography || "",
       department: item.department || "General",
+      city: item.city || "",
+      country: item.country || "",
+      addressLine: item.addressLine || "",
+      zipCode: item.zipCode || "",
+      phone: item.phone || "",
+      email: item.email || "",
     });
     setShowModal(true);
   };
@@ -379,7 +402,9 @@ export default function AdminDashboard() {
                 : "Reset Password"}
           </h2>
           <div className="space-y-4">
-            {(authMode === "login" || authMode === "forgot" || authMode === "reset") && (
+            {(authMode === "login" ||
+              authMode === "forgot" ||
+              authMode === "reset") && (
               <div className="relative">
                 <input
                   type="text"
@@ -403,7 +428,10 @@ export default function AdminDashboard() {
                     }
                   }}
                 />
-                <User className="absolute left-4 top-4 text-gray-300" size={20} />
+                <User
+                  className="absolute left-4 top-4 text-gray-300"
+                  size={20}
+                />
               </div>
             )}
             {authMode === "login" && (
@@ -423,7 +451,11 @@ export default function AdminDashboard() {
                   onClick={() => toggleVisibility("login")}
                   className="absolute right-4 top-4 text-gray-300 hover:text-[#c5a35d]"
                 >
-                  {showPasswords.login ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showPasswords.login ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
                 </button>
               </div>
             )}
@@ -476,12 +508,12 @@ export default function AdminDashboard() {
           >
             {loading ? (
               <Loader2 className="animate-spin" size={18} />
+            ) : authMode === "login" ? (
+              "SECURE LOGIN"
+            ) : authMode === "forgot" ? (
+              "SEND RESET LINK"
             ) : (
-              authMode === "login"
-                ? "SECURE LOGIN"
-                : authMode === "forgot"
-                  ? "SEND RESET LINK"
-                  : "RESET PASSWORD"
+              "RESET PASSWORD"
             )}
           </button>
           <div className="mt-5 text-center text-xs">
@@ -546,6 +578,11 @@ export default function AdminDashboard() {
               id: "applications",
               label: "Job Applications",
               icon: <FileText size={18} />,
+            },
+            {
+              id: "contactInfo",
+              label: "Office Locations",
+              icon: <Phone size={18} />,
             },
             {
               id: "contacts",
@@ -719,85 +756,130 @@ export default function AdminDashboard() {
               ) : (
                 <table className="w-full">
                   <thead className="bg-gray-50/50 border-b border-gray-100 text-left text-[10px] uppercase tracking-widest font-bold text-gray-400">
-                    <tr>
-                      <th className="p-6">
-                        {activeTab === "portfolio"
-                          ? "Asset Details"
-                          : activeTab === "team"
-                            ? "Member Name"
-                            : ["contacts", "applications"].includes(activeTab)
-                              ? "Sender"
-                              : "Details"}
-                      </th>
-                      <th className="p-6">
-                        {activeTab === "portfolio"
-                          ? "Classification"
-                          : activeTab === "team"
-                            ? "Role / Title"
-                            : ["contacts", "applications"].includes(activeTab)
-                              ? "Context"
-                              : "Category"}
-                      </th>
-                      <th className="p-6 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {data.map((item) => (
-                      <tr
-                        key={item._id}
-                        className="hover:bg-gray-50/50 transition-colors"
-                      >
-                        <td className="p-6">
-                          <div className="font-bold text-[#0a1622] text-lg">
-                            {item.fullName || item.title}
-                          </div>
-                          <div className="text-sm text-[#c5a35d]">
-                            {item.email ||
-                              item.location ||
-                              (activeTab === "portfolio" && item.region) ||
-                              (activeTab === "team" && item.department)}
-                          </div>
-                        </td>
-                        <td className="p-6 text-sm text-gray-500 italic">
+                    {activeTab === "contactInfo" ? (
+                      <tr>
+                        <th className="p-6">Location</th>
+                        <th className="p-6">Address</th>
+                        <th className="p-6">Contact</th>
+                        <th className="p-6 text-right">Actions</th>
+                      </tr>
+                    ) : (
+                      <tr>
+                        <th className="p-6">
                           {activeTab === "portfolio"
-                            ? item.sector
+                            ? "Asset Details"
                             : activeTab === "team"
-                              ? item.roleTitle
-                              : item.message ||
-                                item.position ||
-                                item.category ||
-                                item.department}
-                        </td>
-                        <td className="p-6 text-right">
-                          <div className="flex justify-end gap-2">
-                            {activeTab === "applications" && (
-                              <button
-                                onClick={() => openResume(item.resumePath)}
-                                className="bg-amber-50 p-3 rounded-lg text-amber-500 hover:bg-amber-500 hover:text-white transition-all"
-                              >
-                                <Eye size={18} />
-                              </button>
-                            )}
-                            {!["contacts", "applications"].includes(
-                              activeTab,
-                            ) && (
+                              ? "Member Name"
+                              : ["contacts", "applications"].includes(activeTab)
+                                ? "Sender"
+                                : "Details"}
+                        </th>
+                        <th className="p-6">
+                          {activeTab === "portfolio"
+                            ? "Classification"
+                            : activeTab === "team"
+                              ? "Role / Title"
+                              : ["contacts", "applications"].includes(activeTab)
+                                ? "Context"
+                                : "Category"}
+                        </th>
+                        <th className="p-6 text-right">Actions</th>
+                      </tr>
+                    )}
+                  </thead>
+
+                  <tbody className="divide-y divide-gray-50">
+                    {data.map((item) =>
+                      activeTab === "contactInfo" ? (
+                        <tr key={item._id} className="hover:bg-gray-50/50">
+                          <td className="p-6 font-bold text-[#0a1622]">
+                            {item.city}, {item.country}
+                          </td>
+
+                          <td className="p-6 text-gray-500">
+                            {item.addressLine}
+                          </td>
+
+                          <td className="p-6 text-gray-500">
+                            {item.phone} | {item.email}
+                          </td>
+
+                          <td className="p-6 text-right">
+                            <div className="flex justify-end gap-2">
                               <button
                                 onClick={() => handleOpenEdit(item)}
-                                className="bg-blue-50 p-3 rounded-lg text-blue-400 hover:bg-blue-500 hover:text-white transition-all"
+                                className="bg-blue-50 p-3 rounded-lg text-blue-400 hover:bg-blue-500 hover:text-white"
                               >
                                 <Edit3 size={18} />
                               </button>
-                            )}
-                            <button
-                              onClick={() => triggerDelete(item)}
-                              className="bg-red-50 p-3 rounded-lg text-red-400 hover:bg-red-500 hover:text-white transition-all"
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+
+                              <button
+                                onClick={() => triggerDelete(item)}
+                                className="bg-red-50 p-3 rounded-lg text-red-400 hover:bg-red-500 hover:text-white"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : (
+                        <tr key={item._id} className="hover:bg-gray-50/50">
+                          <td className="p-6">
+                            <div className="font-bold text-[#0a1622] text-lg">
+                              {item.fullName || item.title}
+                            </div>
+                            <div className="text-sm text-[#c5a35d]">
+                              {item.email ||
+                                item.location ||
+                                (activeTab === "portfolio" && item.region) ||
+                                (activeTab === "team" && item.department)}
+                            </div>
+                          </td>
+
+                          <td className="p-6 text-sm text-gray-500 italic">
+                            {activeTab === "portfolio"
+                              ? item.sector
+                              : activeTab === "team"
+                                ? item.roleTitle
+                                : item.message ||
+                                  item.position ||
+                                  item.category ||
+                                  item.department}
+                          </td>
+
+                          <td className="p-6 text-right">
+                            <div className="flex justify-end gap-2">
+                              {activeTab === "applications" && (
+                                <button
+                                  onClick={() => openResume(item.resumePath)}
+                                  className="bg-amber-50 p-3 rounded-lg text-amber-500 hover:bg-amber-500 hover:text-white"
+                                >
+                                  <Eye size={18} />
+                                </button>
+                              )}
+
+                              {!["contacts", "applications"].includes(
+                                activeTab,
+                              ) && (
+                                <button
+                                  onClick={() => handleOpenEdit(item)}
+                                  className="bg-blue-50 p-3 rounded-lg text-blue-400 hover:bg-blue-500 hover:text-white"
+                                >
+                                  <Edit3 size={18} />
+                                </button>
+                              )}
+
+                              <button
+                                onClick={() => triggerDelete(item)}
+                                className="bg-red-50 p-3 rounded-lg text-red-400 hover:bg-red-500 hover:text-white"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ),
+                    )}
                   </tbody>
                 </table>
               )}
@@ -957,7 +1039,103 @@ export default function AdminDashboard() {
                   </div>
                 </>
               )}
+              {activeTab === "contactInfo" && (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-gray-400 mb-2">
+                        City
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                        value={formData.city}
+                        onChange={(e) =>
+                          setFormData({ ...formData, city: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-gray-400 mb-2">
+                        Country
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                        value={formData.country}
+                        onChange={(e) =>
+                          setFormData({ ...formData, country: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
 
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-gray-400 mb-2">
+                      Address Line
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                      value={formData.addressLine}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          addressLine: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="col-span-1">
+                      <label className="block text-[10px] uppercase font-bold text-gray-400 mb-2">
+                        Zip Code
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                        value={formData.zipCode}
+                        onChange={(e) =>
+                          setFormData({ ...formData, zipCode: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-[10px] uppercase font-bold text-gray-400 mb-2">
+                        Phone Number
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                        value={formData.phone}
+                        onChange={(e) =>
+                          setFormData({ ...formData, phone: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-gray-400 mb-2">
+                      Office Email
+                    </label>
+                    <input
+                      type="email"
+                      className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-[#c5a35d]"
+                      value={formData.email}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+                </div>
+              )}
               {activeTab === "news" && (
                 <select
                   className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg outline-none"
